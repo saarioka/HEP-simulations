@@ -1,0 +1,8 @@
+export FLUPRO=/media/santeri/linux-storage/fluka
+export GFORFLU=fortran-9
+
+mkdir fluka
+cp fluka2020.0-linux-gfor64bitAA.tar.gz fluka
+cd fluka
+tar -zxvf fluka2020.0-linux-gfor64bitAA.tar.gz
+make

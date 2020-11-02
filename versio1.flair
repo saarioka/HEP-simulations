@@ -1,0 +1,912 @@
+# flair project file
+Version: 300
+Mode: fluka
+md5: 7212c3ad8795caf7a4c973ac401cbc6b
+Input:
+GLOBAL OLDFLAIR,,,,, 1
+TITLE
+*Set the defaults for precision simulations
+DEFAULTS PRECISIO
+#define BEAM_ENERGY 0.000661
+#define BULK_THICKNESS 0.032
+#define BULK_MATERIAL_SILICON
+#define BULK_MATERIAL_CDTE
+*Define the beam characteristics
+*Energy needs to be negative to be coded as energy, otherwise it's momentum
+BEAM PHOTON =-BEAM_ENERGY,, 0.0 -0.0 0.0 1.0
+	@select=8
+*Define the beam position
+BEAMPOS
+GEOBEGIN COMBNAME
+*Black body
+SPH blkbody 0.0 0.0 0.0 100000.0
+	@select=8
+*Void sphere
+SPH void 0.0,, 0.0 10000.0
+	@select=8
+#define METAL_END 300E-7
+RPP metal -0.0075 0.0075 -0.0050 0.0050 0 =METAL_END
+#define BULK_END '=METAL_END + BULK_THICKNESS'
+RPP bulk -0.0075 0.0075 -0.0050 0.0050 =METAL_END =BULK_END
+#define FIELD_INS_END '=BULK_END +84E-7'
+RPP field_ins -0.0075 0.0075 -0.005 0.005 =BULK_END =FIELD_INS_END
+#define IMPLANT_END '=FIELD_INS_END + 400E-7'
+#define SURF_PASS_END '=FIELD_INS_END + 433E-7'
+RPP surf_pass =-58.033E-4 =58.033E-4 =-33.033E-4 =33.033E-4 =FIELD_INS_END =SURF_PASS_END
+#define CORNER_CURVATURE =5.704E-4
+*Contact
+RCC corner1 =-52.296E-4 -0.0027296 =FIELD_INS_END 0.0 0.0 =IMPLANT_END-FIELD_INS_END \
+	 =CORNER_CURVATURE
+RCC corner2 =-52.296E-4 0.0027296 =FIELD_INS_END 0.0 0.0 =IMPLANT_END-FIELD_INS_END \
+	 =CORNER_CURVATURE
+RCC corner4 0.0052296 -0.0027296 =FIELD_INS_END 0.0 0.0 =IMPLANT_END-FIELD_INS_END \
+	 =CORNER_CURVATURE
+RPP wside -0.0058 =-52.296E-4 -0.0027296 0.0027296 =FIELD_INS_END =IMPLANT_END
+RPP middle =-52.296E-4 0.0037 -0.0033 0.0033 =FIELD_INS_END =IMPLANT_END
+RPP eside1 0.0037 =52.296E-4 -0.0033 0.0011 =FIELD_INS_END =IMPLANT_END
+RPP eside2 0.0037 0.0058 -0.0027296 0.0011 =FIELD_INS_END =IMPLANT_END
+*Bias resistor pad
+RCC corner3 0.0052296 0.0027296 =FIELD_INS_END 0.0 0.0 =IMPLANT_END-FIELD_INS_END \
+	 =CORNER_CURVATURE
+RPP lsmall 0.0041 0.0052296 0.0015 0.0033 =FIELD_INS_END =IMPLANT_END
+RPP rsmall 0.0041 0.0058 0.0015 0.0027296 =FIELD_INS_END =IMPLANT_END
+*Passivation opening
+RCC p_open 0.002 0.0 =IMPLANT_END 0.0 0.0 =SURF_PASS_END-IMPLANT_END =15E-4
+!XYP pad_split =320.7E-4
+* planes limiting the target
+XYP Zlow 0.0
+XYP Zhigh =FIELD_INS_END
+XZP Ylow =-50E-4
+XZP Yhigh =50E-4
+YZP Xlow =-75E-4
+YZP Xhigh =75E-4
+END
+*Black hole
+REGION BLKBODY
+	+blkbody -void
+*Void around
+REGION VOID
+	+void -surf_pass 
+	-(+Xhigh +Yhigh +Zhigh  -Xlow -Ylow -Zlow)
+REGION METAL 5
+	+metal
+*Bulk material
+REGION BULK 5
+	+bulk
+*Field insulator
+REGION F_INS 5
+	+field_ins -corner3 -lsmall -rsmall
+REGION PAD
+	+(+corner1|corner2|corner4|wside|middle|eside1|eside2)
+*Silicon pixel
+REGION BIAS_PAD 5
+	+corner3|lsmall|rsmall
+REGION SUR_PASS 5
+	+surf_pass
+	-corner1 -corner2 -corner3 -corner4 -wside -middle -eside1 -eside2 -lsmall -rsmall -p_open
+REGION P_OPEN 5
+	+p_open
+END
+GEOEND
+MATERIAL CADMIUM 48 112.411 8.65
+MATERIAL TELLURIU 52 127.6 6.24
+MATERIAL CdTe,,, 5.85
+MATERIAL SiO2,,, 2.32
+MATERIAL Al2O3,,, 3.95
+MATERIAL TiN,,, 5.4
+COMPOUND CdTe 1.0 CADMIUM 1.0 TELLURIU
+COMPOUND SiO2 1.0 SILICON 2.0 OXYGEN
+COMPOUND Al2O3 2.0 ALUMINUM 3.0 OXYGEN
+COMPOUND TiN 1.0 TITANIUM 1.0 NITROGEN
+ASSIGNMA , BLCKHOLE BLKBODY
+ASSIGNMA , VACUUM VOID
+ASSIGNMA , ALUMINUM METAL
+#if BULK_MATERIAL_SILICON
+ASSIGNMA , SILICON BULK
+#elif BULK_MATERIAL_CDTE
+ASSIGNMA , CdTe BULK
+#endif
+ASSIGNMA , Al2O3 F_INS
+ASSIGNMA , ALUMINUM PAD
+ASSIGNMA , ALUMINUM BIAS_PAD
+ASSIGNMA , Al2O3 SUR_PASS
+ASSIGNMA , VACUUM P_OPEN
+*Set the random number seed
+RANDOMIZ , 1.0
+*Energy deposition density
+USRBIN EneDep 10 ENERGY -97 =50E-4 =75E-4 =SURF_PASS_END =-50E-4 =-75E-4 0.0 200 \
+	 200 200
+USRBIN EneDepA 10 ENERGY 98 =50E-4 =75E-4 =SURF_PASS_END =-50E-4 =-75E-4 0.0 200 \
+	 200 200
+*Displacements per atom
+USRBIN Displac 10 DPA-SCO -96 =50E-4 =75E-4 =SURF_PASS_END =-50E-4 =-75E-4 0.0 \
+	 200 200 200
+*Energy/unit mass (GeV/g)
+USRBIN EneDepMass 10 DOSE -95 =50E-4 =75E-4 =SURF_PASS_END =-50E-4 =-75E-4 0.0 \
+	 200 200 200
+#define FLUENCE_BINS 150
+*Photon fluence from metal to bulk
+USRBDX bcFluence1 99 PHOTON -21 METAL BULK 0.00015 1.4E-3 1E-5 =FLUENCE_BINS,,, 1
+USRBDX bcFluence3 99 PHOTON 24 METAL BULK 0.00015 1.4E-3 1E-5 =FLUENCE_BINS,,, 1
+*Photon fluence from bulk to surface passivation layer
+USRBDX bcFluence2 99 PHOTON -22 BULK F_INS 0.00015 1.4E-3 1E-5 =FLUENCE_BINS,,, 1
+USRBDX bcFluence4 99 PHOTON 25 BULK F_INS 0.00015 1.4E-3 1E-5 =FLUENCE_BINS,,, 1
+*Photon fluence in bulk
+USRTRACK Fluence -1 PHOTON -94 BULK =100E-4*150E-4*BULK_THICKNESS =FLUENCE_BINS 1.4E-3 \
+	 1E-5
+*Collision fluence in bulk
+USRCOLL colFluence,, ALL-PART -23 BULK =100E-4*150E-4*BULK_THICKNESS =FLUENCE_BINS \
+	 1.4E-3 1E-5
+!RESNUCLE Resnuclei 3 -24 48,, BULK =100E-4*150E-4*BULK_THICKNESS
+!DETECT Detect 0,, 1,, 1 BULK
+*Set the number of primary histories to be simulated in the run
+START , 1E5
+STOP
+EndInput
+
+Page: Output
+
+# Run information
+Run: <default>
+	Last:     1
+	StartRun: 1601909527
+End
+Run: si_320_30
+	Define:   BEAM_ENERGY=30E-6
+	Define:   BULK_THICKNESS=320E-4
+	Define:   BULK_MATERIAL_SILICON
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603723186
+End
+Run: si_320_60
+	Define:   BEAM_ENERGY=60E-6
+	Define:   BULK_THICKNESS=320E-4
+	Define:   BULK_MATERIAL_SILICON
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603721632
+End
+Run: si_320_478
+	Define:   BEAM_ENERGY=478E-6
+	Define:   BULK_THICKNESS=320E-4
+	Define:   BULK_MATERIAL_SILICON
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603721632
+End
+Run: si_320_661
+	Define:   BEAM_ENERGY=661E-6
+	Define:   BULK_THICKNESS=320E-4
+	Define:   BULK_MATERIAL_SILICON
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1604074073
+End
+Run: si_320_1000
+	Define:   BEAM_ENERGY=1000E-6
+	Define:   BULK_THICKNESS=320E-4
+	Define:   BULK_MATERIAL_SILICON
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603721632
+End
+Run: si_320_1300
+	Define:   BEAM_ENERGY=1300E-6
+	Define:   BULK_THICKNESS=320E-4
+	Define:   BULK_MATERIAL_SILICON
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603721632
+End
+Run: si_900_30
+	Define:   BEAM_ENERGY=30E-6
+	Define:   BULK_THICKNESS=900E-4
+	Define:   BULK_MATERIAL_SILICON
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603378573
+End
+Run: si_900_60
+	Define:   BEAM_ENERGY=60E-6
+	Define:   BULK_THICKNESS=900E-4
+	Define:   BULK_MATERIAL_SILICON
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603721748
+End
+Run: si_900_478
+	Define:   BEAM_ENERGY=478E-6
+	Define:   BULK_THICKNESS=900E-4
+	Define:   BULK_MATERIAL_SILICON
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603721748
+End
+Run: si_900_661
+	Define:   BEAM_ENERGY=661E-6
+	Define:   BULK_THICKNESS=900E-4
+	Define:   BULK_MATERIAL_SILICON
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603721748
+End
+Run: si_900_1000
+	Define:   FLUENCE_BINS=150
+	Define:   BULK_THICKNESS=900E-4
+	Define:   BULK_MATERIAL_SILICON
+	Define:   BEAM_ENERGY=1000E-6
+	Status:   3
+	StartRun: 1603721748
+End
+Run: si_900_1300
+	Define:   BEAM_ENERGY=1300E-6
+	Define:   BULK_THICKNESS=900E-4
+	Define:   BULK_MATERIAL_SILICON
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603721748
+End
+Run: cdte_1000_30
+	Define:   BEAM_ENERGY=30E-6
+	Define:   BULK_THICKNESS=1000E-4
+	Define:   BULK_MATERIAL_CDTE
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603721748
+End
+Run: cdte_1000_60
+	Define:   BEAM_ENERGY=60E-6
+	Define:   BULK_THICKNESS=1000E-4
+	Define:   BULK_MATERIAL_CDTE
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603722522
+End
+Run: cdte_1000_478
+	Define:   BEAM_ENERGY=478E-6
+	Define:   BULK_THICKNESS=1000E-4
+	Define:   BULK_MATERIAL_CDTE
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603722522
+End
+Run: cdte_1000_661
+	Define:   BEAM_ENERGY=661E-6
+	Define:   BULK_THICKNESS=1000E-4
+	Define:   BULK_MATERIAL_CDTE
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603722522
+End
+Run: cdte_1000_1000
+	Define:   BEAM_ENERGY=1000E-6
+	Define:   BULK_THICKNESS=1000E-4
+	Define:   BULK_MATERIAL_CDTE
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603722522
+End
+Run: cdte_1000_1300
+	Define:   BEAM_ENERGY=1300E-6
+	Define:   BULK_THICKNESS=1000E-4
+	Define:   BULK_MATERIAL_CDTE
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603722522
+End
+Run: cdte_2000_30
+	Define:   BEAM_ENERGY=30E-6
+	Define:   BULK_THICKNESS=2000E-4
+	Define:   BULK_MATERIAL_CDTE
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603722522
+End
+Run: cdte_2000_60
+	Define:   BEAM_ENERGY=60E-6
+	Define:   BULK_THICKNESS=2000E-4
+	Define:   BULK_MATERIAL_CDTE
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603722685
+End
+Run: cdte_2000_478
+	Define:   BEAM_ENERGY=478E-6
+	Define:   BULK_THICKNESS=2000E-4
+	Define:   BULK_MATERIAL_CDTE
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603722685
+End
+Run: cdte_2000_661
+	Define:   BEAM_ENERGY=661E-6
+	Define:   BULK_THICKNESS=2000E-4
+	Define:   BULK_MATERIAL_CDTE
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603722685
+End
+Run: cdte_2000_1000
+	Define:   BEAM_ENERGY=1000E-6
+	Define:   BULK_THICKNESS=2000E-4
+	Define:   BULK_MATERIAL_CDTE
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603722685
+End
+Run: cdte_2000_1300
+	Define:   BEAM_ENERGY=1300E-6
+	Define:   BULK_THICKNESS=2000E-4
+	Define:   BULK_MATERIAL_CDTE
+	Define:   FLUENCE_BINS=150
+	Status:   3
+	StartRun: 1603722685
+End
+Run: template
+	Define:   BEAM_ENERGY
+	Define:   BULK_THICKNESS
+	Define:   BULK_MATERIAL_SILICON
+	Define:   BULK_MATERIAL_CDTE
+	Define:   FLUENCE_BINS=150
+	Last:     1
+	Status:   3
+	StartRun: 1604075775
+End
+Geometry: Geometry
+	Frame.vsplit: 0.49186046511627907
+End
+
+# Plots information
+Plot: Red
+	Type: Geometry
+	basisu: 0 0 1
+	basisv: 1 0 0
+	coord: Z-X
+	extends: 0.00215368 0.00161526
+	grid: 0
+	kind: Material
+	layer: Lattice
+	origin: 0.000362673 0.000243831 0.000448338
+End
+Plot: Green
+	Type: Geometry
+	basisu: 0.836516 0.0173377 0.547668
+	basisv: 0.224144 0.901221 -0.370891
+	extends: 0.0286443 0.0214832
+	grid: 0
+	kind: Material
+	layer: 3D
+	origin: -0.036711 0.0363157 0.0830006
+End
+Plot: Blue
+	Type: Geometry
+	basisu: 0 0 1
+	coord: Z-Y
+	extends: 0.000226946 0.00017021
+	grid: 0
+	kind: Material
+	layer: Lattice
+	origin: 0.000860139 -0.000979851 0.0320387
+End
+Plot: Magenta
+	Type: Geometry
+	coord: X-Y
+	extends: 0.00733333 0.0055
+	grid: 0
+	kind: Material
+	layer: Lattice
+	origin: 0.000661564 -6.6714e-05 0.0320745
+End
+Plot: usrbdx_320_Si
+	Type: USR-1D
+	commands:
+		|set rmargin at screen 0.95
+		|set title "Boundary crossing fluence from bulk material\nto surface passivation layer: 320um silicon bulk"
+	file.0: versio1-1_22_tab.lis
+	format: .png
+	grid: 1
+	index: 1
+	lc.0: red
+	lw.0: 2
+	name.0: Photon fluence
+	ndetectors: 1
+	x.0: 2
+	xlabel: Energy [keV]
+	xlog: 1
+	xnorm.0: 1E6
+	y.0: 0
+	ylabel: Fluence [dn/dE]
+	ylog: 1
+End
+Plot: E_per_V_320_Si
+	Type: USRBIN
+	cbcpd: 0
+	cblabel: Energy Density [keV/cm^3]
+	cblog: 1
+	cbmax: 1E7
+	cbmin: 1E3
+	cbtics: 1
+	commands:
+		|set lmargin at screen 0.15
+		|set rmargin at screen 0.75
+	datafile: versio1-1_97.bnn
+	format: .png
+	geo: -No-
+	grid: 0
+	hist: 2D Projection
+	index: 2
+	int: 3.1950943450316763E-007
+	max: 6.85948849
+	min: 8.90104184E-06
+	norm: 1E6
+	proj: Y
+	title: Deposited energy per volume: 320um silicon bulk
+	xlabel: x [cm]
+	ylabel: y [cm]
+End
+Plot: E_per_m_320_Si
+	Type: USRBIN
+	cbcpd: 0
+	cblabel: Energy/unit mass [GeV/g]
+	cblog: 1
+	cbtics: 1
+	commands:
+		|set lmargin at screen 0.15
+		|set rmargin at screen 0.75
+	datafile: versio1-1_95.bnn
+	format: .png
+	geo: -No-
+	grid: 0
+	hist: 2D Projection
+	index: 3
+	int: 1.3828966481755379E-007
+	max: 1.90659869
+	min: 2.41438011E-06
+	proj: X
+	title: Deposited energy per unit mass: 320um silicon bulk
+	xlabel: x [cm]
+	ylabel: y [cm]
+End
+Plot: displacements_320_Si
+	Type: USRBIN
+	cbcpd: 0
+	cblabel: Displacements per atom
+	cblog: 1
+	cbmax: 1E-21
+	cbmin: 1E-29
+	cbtics: 1
+	commands:
+		|set lmargin at screen 0.15
+		|set rmargin at screen 0.75
+	datafile: versio1-1_96.bnn
+	format: .png
+	geo: -No-
+	grid: 0
+	hist: 2D Projection
+	index: 4
+	int: 2.4555666398295463E-028
+	max: 9.61689793E-21
+	min: 2.28417193E-28
+	proj: Y
+	title: Displacements per atom: 320um silicon bulk
+	xlabel: x [cm]
+	ylabel: y [cm]
+End
+Plot: bulk_fluence_320_Si
+	Type: USR-1D
+	file.0: versio1-1_94_tab.lis
+	format: .png
+	grid: 1
+	index: 1
+	key.0: 0
+	lc.0: red
+	lw.0: 2
+	name.0: Photon fluence
+	ndetectors: 1
+	title: Particle fluence in bulk material: 320um silicon bulk
+	x.0: 2
+	xlabel: Energy [keV]
+	xlog: 1
+	xmax: 1E3
+	xmin: 10
+	xnorm.0: 1E6
+	y.0: 0
+	ylabel: Fluence [dn/dE]
+	ylog: 1
+	ymax: 1E8
+	ymin: 1
+End
+Plot: usrbdx_900_Si
+	Type: USR-1D
+	commands:
+		|set rmargin at screen 0.95
+		|set title "Boundary crossing fluence from bulk material\nto surface passivation layer: 900um silicon bulk"
+	file.0: versio1-2_22_tab.lis
+	format: .png
+	grid: 1
+	index: 1
+	lc.0: red
+	lw.0: 2
+	name.0: Photon fluence
+	ndetectors: 1
+	x.0: 2
+	xlabel: Energy [keV]
+	xlog: 1
+	xnorm.0: 1E6
+	y.0: 0
+	ylabel: Fluence [dn/dE]
+	ylog: 1
+End
+Plot: E_per_V_900_Si
+	Type: USRBIN
+	cbcpd: 0
+	cblabel: Energy Density [keV/cm^3]
+	cblog: 1
+	cbmax: 1E7
+	cbmin: 1E3
+	cbtics: 1
+	commands:
+		|set lmargin at screen 0.15
+		|set rmargin at screen 0.75
+	datafile: versio1-2_97.bnn
+	format: .png
+	geo: -No-
+	grid: 0
+	hist: 2D Projection
+	index: 7
+	int: 1.0149167027254177E-006
+	max: 3.68611431
+	min: 4.67202808E-05
+	norm: 1E6
+	proj: Y
+	title: Deposited energy per volume: 900um silicon bulk
+	xlabel: x [cm]
+	ylabel: y [cm]
+End
+Plot: E_per_m_900_Si
+	Type: USRBIN
+	cbcpd: 0
+	cblabel: Energy/unit mass [GeV/g]
+	cblog: 1
+	cbtics: 1
+	commands:
+		|set lmargin at screen 0.15
+		|set rmargin at screen 0.75
+	datafile: versio1-2_95.bnn
+	format: .png
+	geo: -No-
+	grid: 0
+	hist: 2D Projection
+	index: 8
+	int: 4.3681666444458032E-007
+	max: 1.63217950
+	min: 3.01817709E-05
+	proj: Y
+	title: Deposited energy per unit mass: 900um silicon bulk
+	xlabel: x [cm]
+	ylabel: y [cm]
+End
+Plot: displacements_900_Si
+	Type: USRBIN
+	cbcpd: 0
+	cblabel: Displacements per atom
+	cblog: 1
+	cbmax: 1E-21
+	cbmin: 1E-29
+	cbtics: 1
+	commands:
+		|set lmargin at screen 0.15
+		|set rmargin at screen 0.75
+	datafile: versio1-2_96.bnn
+	format: .png
+	geo: -No-
+	grid: 0
+	hist: 2D Projection
+	index: 8
+	int: 8.0008991110832205E-028
+	max: 3.25510192E-21
+	min: 5.65410132E-28
+	proj: Y
+	title: Displacements per atom: 900um silicon bulk
+	xlabel: x [cm]
+	ylabel: y [cm]
+End
+Plot: bulk_fluence_900_Si
+	Type: USR-1D
+	file.0: versio1-2_94_tab.lis
+	format: .png
+	grid: 1
+	index: 10
+	key.0: 0
+	lc.0: red
+	lw.0: 2
+	name.0: Photon fluence
+	ndetectors: 1
+	title: Particle fluence in bulk material: 900um silicon bulk
+	x.0: 2
+	xlabel: Energy [keV]
+	xlog: 1
+	xmax: 1E3
+	xmin: 10
+	xnorm.0: 1E6
+	y.0: 0
+	ylabel: Fluence [dn/dE]
+	ylog: 1
+	ymax: 1E8
+	ymin: 1
+End
+Plot: usrbdx_1000_CdTe
+	Type: USR-1D
+	commands:
+		|set rmargin at screen 0.95
+		|set title "Boundary crossing fluence from bulk material\nto surface passivation layer: 1mm CdTe bulk"
+	file.0: versio1-3_22_tab.lis
+	format: .png
+	grid: 1
+	index: 1
+	lc.0: red
+	lw.0: 2
+	name.0: Photon fluence
+	ndetectors: 1
+	x.0: 2
+	xlabel: Energy [keV]
+	xlog: 1
+	xnorm.0: 1E6
+	y.0: 0
+	ylabel: Fluence [dn/dE]
+	ylog: 1
+End
+Plot: E_per_V_1000_CdTe
+	Type: USRBIN
+	cbcpd: 0
+	cblabel: Energy Density [keV/cm^3]
+	cblog: 1
+	cbmax: 1E7
+	cbmin: 1E3
+	cbtics: 1
+	commands:
+		|set lmargin at screen 0.15
+		|set rmargin at screen 0.75
+	datafile: versio1-3_97.bnn
+	format: .png
+	geo: -No-
+	grid: 0
+	hist: 2D Projection
+	index: 3
+	int: 4.8727065954450127E-006
+	max: 10.3904572
+	min: 7.56319286E-03
+	norm: 1E6
+	proj: Y
+	title: Deposited energy per volume: 1mm CdTe bulk
+	xlabel: x [cm]
+	ylabel: y [cm]
+End
+Plot: E_per_m_1000_CdTe
+	Type: USRBIN
+	cbcpd: 0
+	cblabel: Energy/unit mass [GeV/g]
+	cblog: 1
+	cbtics: 1
+	commands:
+		|set lmargin at screen 0.15
+		|set rmargin at screen 0.75
+	datafile: versio1-3_95.bnn
+	format: .png
+	geo: -No-
+	grid: 0
+	hist: 2D Projection
+	index: 3
+	int: 8.3292381779017078E-007
+	max: 2.07107806
+	min: 2.26066128E-04
+	proj: X
+	title: Deposited energy per unit mass: 1mm CdTe bulk
+	xlabel: x [cm]
+	ylabel: y [cm]
+End
+Plot: displacements_1000_CdTe
+	Type: USRBIN
+	cbcpd: 0
+	cblabel: Displacements per atom
+	cblog: 1
+	cbmax: 1E-21
+	cbmin: 1E-29
+	cbtics: 1
+	commands:
+		|set lmargin at screen 0.15
+		|set rmargin at screen 0.75
+	datafile: versio1-3_96.bnn
+	format: .png
+	geo: -No-
+	grid: 0
+	hist: 2D Projection
+	index: 3
+	int: 7.1125345495809652E-031
+	max: 6.94212175E-23
+	min: 2.30539342E-27
+	proj: Y
+	title: Displacements per atom: 1mm CdTe bulk
+End
+Plot: bulk_fluence_1000_CdTe
+	Type: USR-1D
+	file.0: versio1-3_94_tab.lis
+	format: .png
+	grid: 1
+	index: 10
+	key.0: 0
+	lc.0: red
+	lw.0: 2
+	name.0: Photon fluence
+	ndetectors: 1
+	title: Particle fluence in bulk material: 1mm CdTe bulk
+	x.0: 2
+	xlabel: Energy [keV]
+	xlog: 1
+	xmax: 1E3
+	xmin: 10
+	xnorm.0: 1E6
+	y.0: 0
+	ylabel: Fluence [dn/dE]
+	ylog: 1
+	ymax: 1E8
+	ymin: 1
+End
+Plot: usrbdx_placeholder
+	Type: USR-1D
+	commands:
+		|set rmargin at screen 0.95
+		|set title "Boundary crossing fluence from metal to bulk: 320um silicon bulk"
+	file.0: versio1-9_21_tab.lis
+	format: .png
+	grid: 1
+	index: 1
+	lc.0: red
+	lw.0: 2
+	name.0: Photon fluence
+	ndetectors: 1
+	x.0: 2
+	xlabel: Energy [keV]
+	xlog: 1
+	xnorm.0: 1E6
+	y.0: 0
+	ylabel: Fluence [dn/dE]
+	ylog: 1
+End
+Plot: usrbdx_placeholder2
+	Type: USR-1D
+	commands:
+		|set rmargin at screen 0.95
+		|set title "Boundary crossing fluence from bulk material\nto surface passivation layer: 320um silicon bulk"
+	file.0: versio1-9_22_tab.lis
+	format: .png
+	grid: 1
+	index: 2
+	lc.0: red
+	lw.0: 2
+	name.0: Photon fluence
+	ndetectors: 1
+	x.0: 2
+	xlabel: Energy [keV]
+	xlog: 1
+	xnorm.0: 1E6
+	y.0: 0
+	ylabel: Fluence [dn/dE]
+	ylog: 1
+End
+Plot: E_per_V_placeholder
+	Type: USRBIN
+	cbcpd: 0
+	cblabel: Energy Density [keV/cm^3]
+	cblog: 1
+	cbmax: 1E7
+	cbmin: 1E3
+	cbtics: 1
+	commands:
+		|set lmargin at screen 0.15
+		|set rmargin at screen 0.75
+	datafile: si_900_1300_97.bnn
+	format: .png
+	geo: -No-
+	grid: 0
+	hist: 2D Projection
+	index: 4
+	int: 6.4526891251251929E-007
+	max: 1.28902531
+	min: 1.90791270E-05
+	norm: 1E6
+	proj: Y
+	title: Deposited energy per volume: 320um silicon bulk
+	xlabel: x [cm]
+	ylabel: y [cm]
+End
+Plot: E_per_m_placeholder
+	Type: USRBIN
+	cbcpd: 0
+	cblabel: Energy/unit mass [GeV/g]
+	cblog: 1
+	cbtics: 1
+	commands:
+		|set lmargin at screen 0.15
+		|set rmargin at screen 0.75
+	datafile: versio1-1_95.bnn
+	format: .png
+	geo: -No-
+	grid: 0
+	hist: 2D Projection
+	index: 3
+	int: 1.3828966481755379E-007
+	max: 1.90659869
+	min: 2.41438011E-06
+	proj: X
+	title: Deposited energy per unit mass: 320um silicon bulk
+	xlabel: x [cm]
+	ylabel: y [cm]
+End
+Plot: displacements_placeholder
+	Type: USRBIN
+	cbcpd: 0
+	cblabel: Displacements per atom
+	cblog: 1
+	cbmax: 1E-21
+	cbmin: 1E-29
+	cbtics: 1
+	commands:
+		|set lmargin at screen 0.15
+		|set rmargin at screen 0.75
+	datafile: cdte_2000_661_96.bnn
+	format: .png
+	geo: -No-
+	grid: 0
+	hist: 2D Projection
+	index: 4
+	int: 5.5697589813202750E-031
+	max: 3.09395223E-23
+	min: 3.48675380E-26
+	proj: Y
+	title: Displacements per atom
+	xlabel: x [cm]
+	ylabel: y [cm]
+End
+Plot: bulk_fluence_placeholder
+	Type: USR-1D
+	file.0: si_320_661_23_tab.lis
+	format: .png
+	grid: 1
+	index: 1
+	key.0: 0
+	lc.0: red
+	lw.0: 2
+	name.0: Photon fluence
+	ndetectors: 1
+	title: Particle fluence in bulk material: 320um silicon bulk
+	x.0: 2
+	xlabel: Energy [keV]
+	xlog: 1
+	xmax: 1E3
+	xmin: 10
+	xnorm.0: 1E6
+	y.0: 0
+	ylabel: Fluence [dn/dE]
+	ylog: 1
+	ymax: 1E8
+	ymin: 1
+End
+Plot: versio1_plot26
+	Type: USR-1D
+	file.0: cdte_2000_1300_23_tab.lis
+	grid: 0
+	name.0: #colFluence
+	ndetectors: 1
+	title: Plot #26
+	y.0: 0
+End
+Plot: versio1_plot27
+	Type: RESNUCLE
+	cbtics: 1
+	datafile: si_320_661_24.rnc
+	grid: 0
+	plot: Z
+	title: Plot #27
+End
