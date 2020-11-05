@@ -1,22 +1,22 @@
 # flair project file
 Version: 300
 Mode: fluka
-md5: b16390a20dbb5b74a42226d5522f6c5e
+md5: 7212c3ad8795caf7a4c973ac401cbc6b
 Input:
 GLOBAL OLDFLAIR,,,,, 1
 TITLE
 *Set the defaults for precision simulations
 DEFAULTS PRECISIO
 #define BEAM_ENERGY 0.000661
+#define BULK_THICKNESS 0.032
+#define BULK_MATERIAL_SILICON
+#define BULK_MATERIAL_CDTE
 *Define the beam characteristics
 *Energy needs to be negative to be coded as energy, otherwise it's momentum
 BEAM PHOTON =-BEAM_ENERGY,, 0.0 -0.0 0.0 1.0
 	@select=8
 *Define the beam position
 BEAMPOS
-#define BULK_THICKNESS 0.032
-#define BULK_MATERIAL_SILICON
-#define BULK_MATERIAL_CDTE
 GEOBEGIN COMBNAME
 *Black body
 SPH blkbody 0.0 0.0 0.0 100000.0
@@ -144,7 +144,7 @@ START , 1E5
 STOP
 EndInput
 
-Page: Geometry
+Page: Output
 
 # Run information
 Run: <default>
@@ -181,7 +181,7 @@ Run: si_320_661
 	Define:   BULK_MATERIAL_SILICON
 	Define:   FLUENCE_BINS=150
 	Status:   3
-	StartRun: 1603724035
+	StartRun: 1604074073
 End
 Run: si_320_1000
 	Define:   BEAM_ENERGY=1000E-6
@@ -232,10 +232,10 @@ Run: si_900_661
 	StartRun: 1603721748
 End
 Run: si_900_1000
-	Define:   BEAM_ENERGY=1000E-6
+	Define:   FLUENCE_BINS=150
 	Define:   BULK_THICKNESS=900E-4
 	Define:   BULK_MATERIAL_SILICON
-	Define:   FLUENCE_BINS=150
+	Define:   BEAM_ENERGY=1000E-6
 	Status:   3
 	StartRun: 1603721748
 End
@@ -343,6 +343,16 @@ Run: cdte_2000_1300
 	Status:   3
 	StartRun: 1603722685
 End
+Run: template
+	Define:   BEAM_ENERGY
+	Define:   BULK_THICKNESS
+	Define:   BULK_MATERIAL_SILICON
+	Define:   BULK_MATERIAL_CDTE
+	Define:   FLUENCE_BINS=150
+	Last:     1
+	Status:   3
+	StartRun: 1604075775
+End
 Geometry: Geometry
 	Frame.vsplit: 0.49186046511627907
 End
@@ -353,36 +363,36 @@ Plot: Red
 	basisu: 0 0 1
 	basisv: 1 0 0
 	coord: Z-X
-	extends: 0.000721264 0.000970566
+	extends: 0.00215368 0.00161526
 	grid: 0
 	kind: Material
 	layer: Lattice
-	origin: 0.00029898 0.000243831 0.000296701
+	origin: 0.000362673 0.000243831 0.000448338
 End
 Plot: Green
 	Type: Geometry
 	basisu: 0.836516 0.0173377 0.547668
 	basisv: 0.224144 0.901221 -0.370891
-	extends: 0.0198919 0.0268383
+	extends: 0.0286443 0.0214832
 	grid: 0
 	kind: Material
 	layer: 3D
-	origin: -0.0403725 0.036103 0.0806824
+	origin: -0.036711 0.0363157 0.0830006
 End
 Plot: Blue
 	Type: Geometry
 	basisu: 0 0 1
 	coord: Z-Y
-	extends: 0.000226946 0.000316168
+	extends: 0.000226946 0.00017021
 	grid: 0
 	kind: Material
 	layer: Lattice
-	origin: 0.000860139 -0.000995295 0.0320466
+	origin: 0.000860139 -0.000979851 0.0320387
 End
 Plot: Magenta
 	Type: Geometry
 	coord: X-Y
-	extends: 0.00733333 0.0102434
+	extends: 0.00733333 0.0055
 	grid: 0
 	kind: Material
 	layer: Lattice

@@ -1,4 +1,5 @@
 import subprocess
+import os
 
 bulks = [
     "320um silicon bulk",
@@ -6,6 +7,18 @@ bulks = [
     "1mm CdTe bulk",
     "2mm CdTe bulk"
 ]
+
+files = [f for f in os.listdir('.') if os.path.isfile(f) and (('si-' in f or 'cdte-' in f) and ('.bnx' in f or '.trk' in f or '.bnn' in f))]
+print(len(files), ' files found')
+
+bulks_si = list(range(320, 901, 58))
+bulks_cdte = list(range(1000, 2001, 100))
+energies = list(range(30, 1331, 50))
+
+print('si:', bulks_si)
+print('cdte', bulks_cdte)
+print('energies', energies)
+
 
 bulk_ids = ["si_320", "si_900", "cdte_1000", "cdte_2000"]
 energies = ["30", "60", "478", "661", "1000", "1300"]

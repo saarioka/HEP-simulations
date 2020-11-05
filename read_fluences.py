@@ -1,13 +1,15 @@
 import os
 import csv
 
-files1 = [f for f in os.listdir('.') if os.path.isfile(f) and '21_sum.lis' in f and 'versio' not in f]
-files2 = [f for f in os.listdir('.') if os.path.isfile(f) and '22_sum.lis' in f and 'versio' not in f]
+files1 = [f for f in os.listdir('.') if os.path.isfile(f) and ('cdte-' in f or 'si-' in f) and '21_sum.lis' in f and 'versio' not in f]
+files2 = [f for f in os.listdir('.') if os.path.isfile(f) and ('cdte-' in f or 'si-' in f) and '22_sum.lis' in f and 'versio' not in f]
 
 files1 = sorted(files1)
 files2 = sorted(files2)
 
-with open('fluences.csv', 'w+') as outfile:
+print(f'found {len(files1)} and {len(files2)} files')
+
+with open('fluences2.csv', 'w+') as outfile:
     writer = csv.writer(outfile)
     writer.writerow(['Filename', 'Material', 'Thickness', 'Energy', 'Fluence1', 'Fluence1 error (%)', 'Fluence2', 'Fluence2 error (%)'])
 

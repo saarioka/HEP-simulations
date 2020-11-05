@@ -4,15 +4,15 @@ TITLE
 * Set the defaults for precision simulations
 DEFAULTS                                                              PRECISIO
 #define BEAM_ENERGY 0.000661
+#define BULK_THICKNESS 0.032
+#define BULK_MATERIAL_SILICON
+#define BULK_MATERIAL_CDTE
 * Define the beam characteristics
 * Energy needs to be negative to be coded as energy, otherwise it's momentum
 !@what.1=-BEAM_ENERGY
 BEAM       -0.000661                 0.0      -0.0       0.0       1.0PHOTON
 * Define the beam position
 BEAMPOS
-#define BULK_THICKNESS 0.032
-#define BULK_MATERIAL_SILICON
-#define BULK_MATERIAL_CDTE
 GEOBEGIN                                                              COMBNAME
     0    0          
 * Black body
