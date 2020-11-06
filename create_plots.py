@@ -16,7 +16,7 @@ bulks_si = list(range(320, 901, 58))
 bulks_cdte = list(range(1000, 2001, 100))
 energies = list(range(30, 1331, 50))
 
-# mapping from filke indices to bulk thicknesses
+# mapping from file indices to bulk thicknesses
 ind2bulk_si = dict(zip(list(range(1, len(bulks_si)+1)), bulks_si))
 ind2bulks_cdte = dict(zip(list(range(1, len(bulks_cdte)+1)), bulks_cdte))
 ind2energies = dict(zip(list(range(1, len(energies)+1)), energies))

@@ -43,7 +43,7 @@ def process_USRBIN():
         subprocess.run(["gplevbin"], input=bytes(f"\n\n{f}\n\n\n1\n\n200\n\n1\n\n200\n\n", 'utf-8'), stdout=logfile)
         try: os.rename("gplevh.dat", outfile)
         except: failed.append(outfile)
-    if len(failed > 0):
+    if len(failed) > 0:
         print('Conversion of following files failed:\n', failed)
     for fn in ("gplevh.lim", "gplevh.npo", "gplevh.poi", "doslev.dat", "fort.11", "fort.15"):
         try: os.remove(fn)
