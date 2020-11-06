@@ -1,17 +1,34 @@
 import os
 import matplotlib.pyplot as plt
 import numpy as np
+from tqdm import tqdm
 
-img = np.fromfile('si-900-1330-97.bnn')
-img = img[:8000000].reshape([2**9, 5**6])
-print(img.shape)
-plt.imshow(img)
-plt.show()
+files = [f for f in os.listdir('.') if os.path.isfile(f) and '.dat' in f and 'doslev' not in f]
 
-'''
-with open('cdte-1000-30-97.bnn', 'rb') as f:
-    byte = f.read(1)
-    while byte:
-        print(byte)
-        byte = f.read(1)
-'''
+file2folder = {
+    '96':'pics_displacement',
+    '97':'pics_energy_deposit'
+}
+
+if not os.path.exists('pics_displacement'):
+    os.makedirs('pics_displacement')
+
+if not os.path.exists('pics_energy_deposit'):
+    os.makedirs('pics_energy_deposit')
+
+failed = []
+for f in tqdm(files):
+    img = np.genfromtxt(f)
+    fig = plt.figure()
+    if len(img[:,3]) == 40401:
+        plt.imshow(img[:,2].reshape(201,201).transpose(), cmap='jet')
+        plt.colorbar()
+        fn = f.split('.')[0]
+
+        plt.savefig(file2folder[fn.split('-')[-1]] + os.path.sep + fn + '.png')
+        plt.close(fig)
+    else:
+        failed.append(f)
+
+if len(failed) > 0:
+    print('Conversion for following files failed:\n', failed)

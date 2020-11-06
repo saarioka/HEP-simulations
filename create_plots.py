@@ -5,9 +5,11 @@ from matplotlib import cm
 import numpy as np
 import pandas as pd
 
-import read_boundary_crossing_fluence
+import output_processing
 
-read_boundary_crossing_fluence.create_csv('fluences2.csv') # update csv file
+output_processing.process_USRBDX('fluences2.csv')
+output_processing.process_USRBIN()
+
 data = pd.read_csv('fluences2.csv')
 
 bulks_si = list(range(320, 901, 58))
