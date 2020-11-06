@@ -5,9 +5,9 @@ from matplotlib import cm
 import numpy as np
 import pandas as pd
 
-import read_fluences2
+import read_boundary_crossing_fluence
 
-read_fluences2.create_csv('fluences2.csv') # update csv file
+read_boundary_crossing_fluence.create_csv('fluences2.csv') # update csv file
 data = pd.read_csv('fluences2.csv')
 
 bulks_si = list(range(320, 901, 58))
@@ -26,6 +26,7 @@ def plot_intensity(results, bulk, identifier, ylim=[0,1]):
     # works despite linter error (pylint)
     # https://github.com/PyCQA/pylint/issues/2289
     colors = plt.cm.turbo(np.linspace(0,1,len(bulks_si)))
+
     plt.figure(figsize=[7,5.5])
     for b in range(len(bulk)):
         data = results[results['Thickness'] == bulk[b]]
@@ -66,7 +67,6 @@ def plot_attenuation(results, identifier, ylim=[0,1]):
     plt.title(' Plot of ln($I_0/I$) values versus thickness of attenuator medium ' + identifier)
     plt.savefig(identifier + '_attenuation.png')
     plt.tight_layout()
-
 
 plot_intensity(si, bulks_si, 'Silicon', ylim=[0.95, 1])
 plot_intensity(cdte, bulks_cdte, 'CdTe')
