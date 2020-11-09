@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 import numpy as np
 import pandas as pd
+from scipy.stats import linregress
 
 import output_processing
 
@@ -52,7 +53,8 @@ def plot_intensity(results, bulk, identifier, ylim=[0,1]):
 
 def plot_attenuation(results, identifier, ylim=[0,1]):
     colors = plt.cm.turbo(np.linspace(0,1,len(energies)))
-    plt.figure(figsize=[10,5.5])
+    plt.figure(figsize=[13,5.5])
+    slopes = []
     for e in range(len(energies)):
         data = results[results['Energy'] == energies[e]]
         data = data.sort_values('Energy')
@@ -61,21 +63,26 @@ def plot_attenuation(results, identifier, ylim=[0,1]):
         I = [i if i > 1 else np.nan for i in I]
         rel_I = np.log(np.divide(I0,I))
         #rel_I = [i if not np.isnan(i) else 0 for i in rel_I]
-        plt.plot(data['Thickness'], rel_I, color=colors[e])
-        plt.scatter(data['Thickness'], rel_I, color=colors[e], marker='x', label=str(energies[e]) + ' keV')
+        #plt.plot(data['Thickness'], rel_I, color=colors[e])
+        plt.scatter(data['Thickness'], rel_I, color=colors[e], marker='x')
+        fit = linregress(data['Thickness'], rel_I)
+        plt.plot(data['Thickness'], data['Thickness']*fit.slope + fit.intercept, color=colors[e], label=f'{energies[e]}keV: CC={fit.rvalue:.3e}, SE={fit.stderr:.1e}')
+        plt.yscale('log')
+        slopes.append(fit.slope)
     plt.xlabel(r'Bulk thickness [$\mu$m]')
     plt.ylabel('ln($I_0/I$)')
     plt.grid()
     plt.ylim(ylim)
-    plt.legend(title='Beam energies', loc="upper left", ncol=2, fontsize='small', bbox_to_anchor=(1.05, 1))
-    plt.title(' Plot of ln($I_0/I$) values versus thickness of attenuator medium ' + identifier)
-    plt.savefig(os.path.join('pics', identifier + '_attenuation.png'))
+    plt.legend(title='Beam energies with linear fits,\n fit correlation coefficients (CC) and standard errors (SE)', loc="upper left", ncol=2, fontsize='small', bbox_to_anchor=(1.05, 1))
+    plt.title(' Plot of ln($I_0/I$) values versus thickness of attenuator medium: ' + identifier)
     plt.tight_layout()
+    plt.savefig(os.path.join('pics', identifier + '_attenuation.png'))
+    return slopes
 
 plot_intensity(si, bulks_si, 'Silicon', ylim=[0.95, 1])
 plot_intensity(cdte, bulks_cdte, 'CdTe')
 
-plot_attenuation(si, 'Silicon', ylim=[0, 0.05])
+plot_attenuation(si, 'Silicon', ylim=[2e-3, 0.05])
 plot_attenuation(cdte, 'CdTe')
 
 plt.show()

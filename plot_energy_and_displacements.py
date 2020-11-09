@@ -1,4 +1,4 @@
-import os
+import os, sys
 import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
@@ -22,7 +22,7 @@ for f in tqdm(files):
     img = np.genfromtxt(f)
     if len(img[:,3]) == 40401:
         img = img[:,2].reshape(201,201).transpose()
-        img[img < 1e-27] = 0 # outside numerical accuray... creates noise in plots
+        img[img == 0] = sys.float_info.min
 
         fn = f.split('.')[0]
         bulk, bt, energy, unit = fn.split('-')
@@ -30,13 +30,15 @@ for f in tqdm(files):
         fig = plt.figure(figsize=(11,8))
         if unit == '96':
             # displacements
-            plt.imshow(img,
-                       cmap='jet',
+            h = plt.imshow(img,
+                       cmap='gnuplot',
                        extent=[0, int(bt), -50, 50],
                        aspect=int(bt)/100,
-                       #norm=colors.LogNorm(vmin=1e-29, vmax=1e-20)
+                       norm=colors.LogNorm(vmin=1e-25, vmax=1e-16)
                        )
-            plt.colorbar()
+            h.cmap.set_under('k')
+            h.cmap.set_over('w')
+            plt.colorbar(extend='both')
             plt.xlabel(f'x [$\mu m$]')
             plt.ylabel(f'y [$\mu m$]')
             if bulk == 'si':
@@ -49,18 +51,20 @@ for f in tqdm(files):
             try:
                 plt.savefig('pics_displacement' + os.path.sep + fn + '.png')
             except ValueError:
-                print('Could not save ', fn)
+                print('Displacements: could not save ', fn)
                 failed.append(f)
 
         if unit == '97':
             # energy deposit
-            plt.imshow(img,
-                       cmap='jet',
+            h = plt.imshow(img,
+                       cmap='gnuplot',
                        extent=[0, int(bt), -50, 50],
                        aspect=int(bt)/100,
-                       norm=colors.LogNorm(vmin=1e-6, vmax=25)
+                       norm=colors.LogNorm(vmin=1e-7, vmax=1e3)
                        )
-            plt.colorbar()
+            h.cmap.set_under('k')
+            h.cmap.set_over('y')
+            plt.colorbar(extend='both')
             plt.xlabel(f'x [$\mu m$]')
             plt.ylabel(f'y [$\mu m$]')
             plt.title('Energy deposition')
@@ -73,7 +77,7 @@ for f in tqdm(files):
             try:
                 plt.savefig(os.path.join('pics_energy_deposit', fn + '.png'))
             except ValueError:
-                print('Could not save ', fn)
+                print('Energy deposit: could not save ', fn)
                 failed.append(f)
             plt.tight_layout()
 
