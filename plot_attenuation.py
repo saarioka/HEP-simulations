@@ -8,8 +8,6 @@ import pandas as pd
 import output_processing
 
 output_processing.process_USRBDX('fluences2.csv')
-output_processing.process_USRBIN()
-
 data = pd.read_csv('fluences2.csv')
 
 bulks_si = list(range(320, 901, 58))
@@ -23,6 +21,10 @@ ind2energies = dict(zip(list(range(1, len(energies)+1)), energies))
 
 si = data[data['Material'] == 'si']
 cdte = data[data['Material'] == 'cdte']
+cdteneutron = data[data['Material'] == 'cdteneutron']
+
+if not os.path.exists(os.path.join('.', 'pics')):
+    os.makedirs('pics')
 
 def plot_intensity(results, bulk, identifier, ylim=[0,1]):
     # works despite linter error (pylint)
@@ -46,7 +48,7 @@ def plot_intensity(results, bulk, identifier, ylim=[0,1]):
     plt.ylim(ylim)
     plt.legend(title='Bulk thickness', fontsize='small')
     plt.title('Beam intensity: ' + identifier)
-    plt.savefig(identifier + '_fluence.png')
+    plt.savefig(os.path.join('pics',identifier + '_fluence.png'))
 
 def plot_attenuation(results, identifier, ylim=[0,1]):
     colors = plt.cm.turbo(np.linspace(0,1,len(energies)))
@@ -67,7 +69,7 @@ def plot_attenuation(results, identifier, ylim=[0,1]):
     plt.ylim(ylim)
     plt.legend(title='Beam energies', loc="upper left", ncol=2, fontsize='small', bbox_to_anchor=(1.05, 1))
     plt.title(' Plot of ln($I_0/I$) values versus thickness of attenuator medium ' + identifier)
-    plt.savefig(identifier + '_attenuation.png')
+    plt.savefig(os.path.join('pics', identifier + '_attenuation.png'))
     plt.tight_layout()
 
 plot_intensity(si, bulks_si, 'Silicon', ylim=[0.95, 1])

@@ -4,8 +4,8 @@ import subprocess
 from tqdm import tqdm
 
 def process_USRBDX(filename):
-    files1 = [f for f in os.listdir('.') if os.path.isfile(f) and ('cdte-' in f or 'si-' in f) and '-21_sum.lis' in f and 'versio' not in f]
-    files2 = [f for f in os.listdir('.') if os.path.isfile(f) and ('cdte-' in f or 'si-' in f) and '-22_sum.lis' in f and 'versio' not in f]
+    files1 = [f for f in os.listdir('.') if os.path.isfile(f) and ('si-' in f or 'cdte-' in f or 'cdteneutron-' in f) and '-21_sum.lis' in f and 'versio' not in f]
+    files2 = [f for f in os.listdir('.') if os.path.isfile(f) and ('si-' in f or 'cdte-' in f or 'cdteneutron-' in f) and '-22_sum.lis' in f and 'versio' not in f]
 
     files1 = sorted(files1)
     files2 = sorted(files2)
@@ -34,7 +34,7 @@ def process_USRBIN():
     Preprocess the binary files with gplevbin
     '''
     logfile = open('convert_usrbin.log', 'a+')
-    files_all = [f for f in os.listdir('.') if os.path.isfile(f) and ('cdte-' in f or 'si-' in f)]
+    files_all = [f for f in os.listdir('.') if os.path.isfile(f) and ('si-' in f or 'cdte-' in f or 'cdteneutron-' in f)]
     files_todo = [f for f in files_all if '.bnn' in f and 'versio' not in f and f.split('.')[0]+'.dat' not in files_all]
     print(f'USRBIN: found {len(files_todo)} to process')
     failed = []
