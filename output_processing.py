@@ -2,6 +2,8 @@ import os
 import csv
 import subprocess
 from tqdm import tqdm
+import numpy as np
+import pandas as pd
 
 def process_USRBDX(filename):
     files1 = [f for f in os.listdir('.') if os.path.isfile(f) and ('si-' in f or 'cdte-' in f or 'cdteneutron-' in f) and '-21_sum.lis' in f and 'versio' not in f]
@@ -31,7 +33,7 @@ def process_USRBDX(filename):
 
 def process_USRBIN():
     '''
-    Preprocess the binary files with gplevbin
+    First pass: Preprocess the binary files with gplevbin
     '''
     logfile = open('convert_usrbin.log', 'a+')
     files_all = [f for f in os.listdir('.') if os.path.isfile(f) and ('si-' in f or 'cdte-' in f or 'cdteneutron-' in f)]
@@ -48,3 +50,25 @@ def process_USRBIN():
     for fn in ("gplevh.lim", "gplevh.npo", "gplevh.poi", "doslev.dat", "fort.11", "fort.15"):
         try: os.remove(fn)
         except: pass
+
+    datafilename = 'energy_and_displacements.csv'
+    if os.path.isfile(datafilename):
+        return
+    '''
+    Second pass: Calculate integrals from results of previous step
+    '''
+    files = [f for f in os.listdir('.') if os.path.isfile(f) and '-96.dat' in f and 'doslev' not in f]
+    #data = pd.DataFrame(columns=['Filename', 'Material', 'Thickness', 'Energy', 'Displacements', 'Energydeposit'])
+    with open(datafilename, 'w+') as outfile:
+        writer = csv.writer(outfile)
+        writer.writerow(['Filename', 'Material', 'Thickness', 'Energy', 'Displacements', 'Energydeposit'])
+        for f in tqdm(files):
+            f2 = list(f)
+            f2[-5] = '7'
+            f2 = ''.join(f2)
+            disp = np.genfromtxt(f)
+            e = np.genfromtxt(f2)
+            if len(disp[:,3]) == 40401 and len(e[:,3]) == 40401:
+                params = f.split('.')[0].split('-')
+                writer.writerow([f.split('.')[0], params[0], params[1], params[2], np.sum(disp), np.sum(e)])
+
