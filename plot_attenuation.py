@@ -40,7 +40,7 @@ xcom_cdte[:,6] *= 5.85
 if not os.path.exists(os.path.join('.', 'pics')):
     os.makedirs('pics')
 
-def plot_intensity(results, bulk, identifier, ylim=[0,1], neutron=False):
+def plot_intensity(results, bulk, identifier, ylim=[0,1]):
     # works despite linter error (pylint)
     # https://github.com/PyCQA/pylint/issues/2289
     colors = plt.cm.turbo(np.linspace(0,1,len(bulks_si)))
@@ -54,7 +54,7 @@ def plot_intensity(results, bulk, identifier, ylim=[0,1], neutron=False):
         I0 = [i if i > sys.float_info.epsilon else np.nan for i in I0] # Fluence is about 7000 in the beginning
         I_pass = np.divide(I,I0)
         plt.plot(data['Energy'], I_pass, color=colors[b])
-        plt.scatter(data['Energy'], I_pass, color=colors[b], marker='x', label=str(bulks_si[b]) + r' $\mu m$')
+        plt.scatter(data['Energy'], I_pass, color=colors[b], marker='x', label=str(bulk[b]) + r' $\mu m$')
     plt.xlabel('Beam energy [keV]')
     plt.ylabel('$I/I_0$')
     plt.grid()
