@@ -1,7 +1,8 @@
-import os, sys
+import os, sys, copy
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import matplotlib as mpl
 from tqdm import tqdm
 from matplotlib import colors
 import output_processing
@@ -18,73 +19,64 @@ cdte = data_all[data_all['Material'] == 'cdte']
 cdteneutron = data_all[data_all['Material'] == 'cdteneutron']
 
 bulknames = ['si', 'cdte', 'cdteneutron']
-legendnames = ['Silicon', 'CdTe (photon beam)', 'CdTe (neutron beam)']
 
-def plot_displacements(results, bulk, identifier, colorlist, ylim=[0,2.5e6]):
+def plot_displacements(results, bulk, identifier, normalization_factor, colorlist, ylim=[0,5e3]):
     for b in range(len(bulk)):
         data = results[results['Thickness'] == bulk[b]]
         data = data.sort_values('Energy')
-        plt.plot(data['Energy'], data['Displacements'], label=str(bulk[b]) + r' $\mu m$', color=colorlist[b])
+        plt.plot(data['Energy'], data['Displacements'] / normalization_factor[b], label=str(bulk[b]) + r'$\mu m$ ' + identifier, color=colorlist[b])
     plt.xlabel('Beam energy [keV]')
-    plt.ylabel('$I/I_0$')
+    #plt.ylabel('Displacements per atom')
+    plt.ylabel(r'Displacements/$cm³$')
     plt.grid()
+    plt.xlim(30, 1300)
     plt.ylim(ylim)
     plt.yscale('log')
-    plt.legend(title='Bulk thickness', fontsize='small', loc="upper left", ncol=3, bbox_to_anchor=(1, 1))
-    plt.title('Beam intensity: ' + identifier)
+    plt.legend(fontsize='x-small', loc="center right", ncol=3, bbox_to_anchor=(1, 0.46))
+    plt.title('Radiation damage')
     plt.tight_layout()
-    plt.savefig(os.path.join('pics',identifier + '_fluence.png'))
+    plt.savefig(os.path.join('pics', 'displacements.png'))
+
+def plot_energy_depositions(results, bulk, identifier, normalization_factor, colorlist, ylim=[1,5e3]):
+    for b in range(len(bulk)):
+        data = results[results['Thickness'] == bulk[b]]
+        data = data.sort_values('Energy')
+        plt.plot(data['Energy'], data['Energydeposit'] / normalization_factor[b], label=str(bulk[b]) + r'$\mu m$ ' + identifier, color=colorlist[b])
+    plt.xlabel('Beam energy [keV]')
+    plt.ylabel(r'Energy Density [$keV/cm^3$]')
+    plt.grid()
+    plt.xlim(30, 1300)
+    plt.ylim(ylim)
+    plt.yscale('log')
+    plt.legend(fontsize='x-small', loc="lower right", ncol=3)
+    plt.title('Deposited energy per volume')
+    plt.tight_layout()
+    plt.savefig(os.path.join('pics', 'deposited_energies.png'))
+
+# NOTE: only works if the scored region covers the bulk onlcovers the bulk only
+# N = N_A * n
+# N = N_A * V*rho/M
+# N = N_A * width*height*depth * rho / M
+#atoms_per_bulk_si = 6.0221415e23 * 100e-4*150e-4*np.array(bulks_si)*1e4 * 2.3290 / 28.08553
+#atoms_per_bulk_cdte = 6.0221415e23 * 100e-4*150e-4*np.array(bulks_cdte)*1e4 * 5.85 / 240.01
 
 # works despite linter error (pylint)
- # https://github.com/PyCQA/pylint/issues/2289
+# https://github.com/PyCQA/pylint/issues/2289
 colorlist = plt.cm.turbo(np.linspace(0,1,3*len(bulks_si)))
-'''
-plot_displacements(si, bulks_si, 'Silicon', plt.cm.turbo(np.linspace(0,1/3,11)))
-plot_displacements(cdte, bulks_cdte, 'CdTe (photon beam)', plt.cm.turbo(np.linspace(1/3,2/3,11)))
-plot_displacements(cdteneutron, bulks_cdte, 'CdTe (neutron beam)', plt.cm.turbo(np.linspace(2/3,1,11)))
-'''
-plt.figure(figsize=[9,5.5])
-plot_displacements(si, bulks_si, 'Silicon', colorlist[:11])
-plot_displacements(cdte, bulks_cdte, 'CdTe (photon beam)', colorlist[11:22])
-plot_displacements(cdteneutron, bulks_cdte, 'CdTe (neutron beam)', colorlist[22:33])
+
+pixel_volume_si = 100e-4*150e-4*np.array(bulks_si)*1e4
+pixel_volume_cdte = 100e-4*150e-4*np.array(bulks_cdte)*1e4
+
+plt.figure(figsize=[11,7])
+plot_displacements(si, bulks_si, 'Si', pixel_volume_si, colorlist[:11])
+plot_displacements(cdte, bulks_cdte, r'CdTe ($\gamma$)', pixel_volume_cdte, colorlist[11:22])
+plot_displacements(cdteneutron, bulks_cdte, 'CdTe (n)', pixel_volume_si, colorlist[22:33])
+
+plt.figure(figsize=[11,7])
+plot_energy_depositions(si, bulks_si, 'Si', pixel_volume_si, colorlist[:11])
+plot_energy_depositions(cdte, bulks_cdte, r'CdTe ($\gamma$)', pixel_volume_cdte, colorlist[11:22])
+plot_energy_depositions(cdteneutron, bulks_cdte, 'CdTe (n)', pixel_volume_si, colorlist[22:33])
 plt.show()
-
-'''
-plt.figure(figsize=[9,5.5])
-for bn in range(len(bulknames)):
-    data = data_all[data_all['Material'] == bn]
-    for t in thicknesses:
-        d = data[data['Thickness'] == t]
-        d = d.sort_values('Energy')
-        plt.fill_between(d['Energy'], d['Displacements'], label=legendnames[bn], step='pre', alpha=0.5, facecolor=plot_colors[bn])
-plt.xlabel('Beam energy [keV]')
-plt.ylabel('Displacements per atom')
-plt.grid()
-plt.yscale('log')
-plt.legend(loc='upper left')
-plt.title('Radiation damage (displacements per atom)')
-plt.tight_layout()
-plt.savefig(os.path.join('pics', 'displacements.png'))
-
-
-
-plt.figure(figsize=[9,5.5])
-for b in range(len(bulknames)):
-    d = data[data['Material'] == bulknames[b]]
-    d = d.sort_values('Energy')
-    plt.plot(d['Energy'], d['Energydeposit'], color=plot_colors[b], drawstyle='steps')
-    plt.fill_between(d['Energy'], d['Energydeposit'], label=legendnames[b], step='pre', alpha=0.5, facecolor=plot_colors[b])
-plt.xlabel('Beam energy [keV]')
-plt.ylabel(r'Energy Density [$keV/cm^3$]')
-plt.grid()
-plt.yscale('log')
-plt.legend(loc='center right')
-plt.title('Deposited energy per volume')
-plt.tight_layout()
-plt.savefig(os.path.join('pics', 'deposited_energies.png'))
-plt.show()
-'''
-
 
 files = [f for f in os.listdir('.') if os.path.isfile(f) and '.dat' in f and 'doslev' not in f]
 #files = sorted(files)
@@ -94,6 +86,11 @@ if not os.path.exists('pics_displacement'):
 
 if not os.path.exists('pics_energy_deposit'):
     os.makedirs('pics_energy_deposit')
+
+
+cmap = copy.copy(mpl.cm.get_cmap('gnuplot'))
+cmap.set_under('k')
+cmap.set_over('w')
 
 failed = []
 #for f in tqdm(files):
@@ -110,13 +107,11 @@ for f in files[:3]:
         if unit == '96':
             # displacements
             h = plt.imshow(img,
-                       cmap='gnuplot',
+                       cmap=cmap,
                        extent=[0, int(bt), -50, 50],
                        aspect=int(bt)/100,
                        norm=colors.LogNorm(vmin=1e-25, vmax=1e-16)
                        )
-            h.cmap.set_under('k')
-            h.cmap.set_over('w')
             plt.colorbar(extend='both')
             plt.xlabel(r'x [$\mu m$]')
             plt.ylabel(r'y [$\mu m$]')
@@ -136,13 +131,11 @@ for f in files[:3]:
         if unit == '97':
             # energy deposit
             h = plt.imshow(img,
-                       cmap='gnuplot',
+                       cmap=cmap,
                        extent=[0, int(bt), -50, 50],
                        aspect=int(bt)/100,
                        norm=colors.LogNorm(vmin=1e-7, vmax=1e3)
                        )
-            h.cmap.set_under('k')
-            h.cmap.set_over('y')
             plt.colorbar(extend='both')
             plt.xlabel(r'x [$\mu m$]')
             plt.ylabel(r'y [$\mu m$]')

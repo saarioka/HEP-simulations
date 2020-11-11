@@ -62,7 +62,7 @@ def plot_intensity(results, bulk, identifier, ylim=[0,1]):
     plt.legend(title='Bulk thickness', fontsize='small', loc="upper left", bbox_to_anchor=(1, 1))
     plt.title('Beam intensity: ' + identifier)
     plt.tight_layout()
-    plt.savefig(os.path.join('pics',identifier + '_fluence.png'))
+    plt.savefig(os.path.join('pics','fluence_' + identifier + '.png'))
 
 def plot_attenuation(results, identifier, ylim=[0,1]):
     colors = plt.cm.turbo(np.linspace(0,1,len(energies)))
@@ -86,7 +86,7 @@ def plot_attenuation(results, identifier, ylim=[0,1]):
     plt.legend(title='Beam energies with linear fits,\n fit correlation coefficients (CC)\nand standard errors (SE)', loc="upper left", fontsize='small', bbox_to_anchor=(1, 1))
     plt.title('Plot of ln($I_0/I$) values versus thickness of attenuator medium: ' + identifier)
     plt.tight_layout()
-    plt.savefig(os.path.join('pics', identifier + '_attenuation.png'))
+    plt.savefig(os.path.join('pics', 'attenuation_' + identifier + '.png'))
     return np.array(coeffs)
 
 def plot_coefficients(results, coeffs, xcom, bulk, identifier, ylim=[0.1, 20]):
@@ -104,7 +104,7 @@ def plot_coefficients(results, coeffs, xcom, bulk, identifier, ylim=[0.1, 20]):
     plt.legend(loc="upper right")
     plt.title('Linear attenuation coefficients: ' + identifier)
     plt.tight_layout()
-    plt.savefig(os.path.join('pics', identifier + '_attenuation_coef.png'))
+    plt.savefig(os.path.join('pics', 'attenuationcoef_' + identifier + '.png'))
 
 plot_intensity(si, bulks_si, 'Silicon', ylim=[0.95, 1])
 plot_intensity(cdte, bulks_cdte, 'CdTe (photon beam)')
