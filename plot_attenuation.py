@@ -23,7 +23,6 @@ ind2energies = dict(zip(list(range(1, len(energies)+1)), energies))
 si = data_all[data_all['Material'] == 'si']
 cdte = data_all[data_all['Material'] == 'cdte']
 cdteneutron = data_all[data_all['Material'] == 'cdteneutron']
-print(cdteneutron)
 
 
 xcom_si = pd.read_csv('xcom_si', skiprows=2, engine='python', sep=' ').to_numpy()
@@ -46,7 +45,7 @@ def plot_intensity(results, bulk, identifier, ylim=[0,1], neutron=False):
     # https://github.com/PyCQA/pylint/issues/2289
     colors = plt.cm.turbo(np.linspace(0,1,len(bulks_si)))
 
-    plt.figure(figsize=[7,5.5])
+    plt.figure(figsize=[9,5.5])
     for b in range(len(bulk)):
         data = results[results['Thickness'] == bulk[b]]
         data = data.sort_values('Energy')
@@ -59,16 +58,13 @@ def plot_intensity(results, bulk, identifier, ylim=[0,1], neutron=False):
     plt.xlabel('Beam energy [keV]')
     plt.ylabel('$I/I_0$')
     plt.grid()
-    #plt.ylim(ylim)
-    plt.legend(title='Bulk thickness', fontsize='small')
-    if neutron:
-        plt.title('Beam intensity: ' + identifier + ' (neutron beam)')
-        identifier += '_neutron'
-    else:
-        plt.title('Beam intensity: ' + identifier + ' (photon beam)')
+    plt.ylim(ylim)
+    plt.legend(title='Bulk thickness', fontsize='small', loc="upper left", bbox_to_anchor=(1, 1))
+    plt.title('Beam intensity: ' + identifier)
+    plt.tight_layout()
     plt.savefig(os.path.join('pics',identifier + '_fluence.png'))
 
-def plot_attenuation(results, identifier, ylim=[0,1], neutron=False):
+def plot_attenuation(results, identifier, ylim=[0,1]):
     colors = plt.cm.turbo(np.linspace(0,1,len(energies)))
     coeffs = []
     plt.figure(figsize=[10,6.5])
@@ -86,19 +82,14 @@ def plot_attenuation(results, identifier, ylim=[0,1], neutron=False):
     plt.xlabel(r'Bulk thickness [$\mu m$]')
     plt.ylabel('ln($I_0/I$)')
     plt.grid()
-    #plt.ylim(ylim)
-    if neutron:
-        plt.title('Plot of ln($I_0/I$) values versus thickness of attenuator medium: ' + identifier + ' (neutron beam)')
-        plt.legend(title='Neutron beam energies with linear fits,\nfit correlation coefficients (CC)\nand standard errors (SE)', loc="upper left", fontsize='small', bbox_to_anchor=(1, 1))
-        identifier += '_neutron'
-    else:
-        plt.title('Plot of ln($I_0/I$) values versus thickness of attenuator medium: ' + identifier + ' (photon beam)')
-        plt.legend(title='Photon beam energies with linear fits,\nfit correlation coefficients (CC)\nand standard errors (SE)', loc="upper left", fontsize='small', bbox_to_anchor=(1, 1))
+    plt.ylim(ylim)
+    plt.legend(title='Beam energies with linear fits,\n fit correlation coefficients (CC)\nand standard errors (SE)', loc="upper left", fontsize='small', bbox_to_anchor=(1, 1))
+    plt.title('Plot of ln($I_0/I$) values versus thickness of attenuator medium: ' + identifier)
     plt.tight_layout()
     plt.savefig(os.path.join('pics', identifier + '_attenuation.png'))
     return np.array(coeffs)
 
-def plot_coefficients(results, coeffs, bulk, identifier, xcom=np.nan, ylim=[0.1, 20], neutron=False):
+def plot_coefficients(results, coeffs, xcom, bulk, identifier, ylim=[0.1, 20]):
     colors = plt.cm.turbo(np.linspace(0,1,len(energies)))
     plt.figure(figsize=[7,5.5])
     plt.plot(xcom[:,0], xcom[:,6], c='tab:blue', label='XCOM data')
@@ -107,26 +98,23 @@ def plot_coefficients(results, coeffs, bulk, identifier, xcom=np.nan, ylim=[0.1,
     plt.ylabel(r'$\mu$ [$cm^{-1}$]')
     plt.grid()
     plt.xlim([70, 1500])
-    #plt.ylim(ylim)
+    plt.ylim(ylim)
     plt.xscale('log')
     plt.yscale('log')
     plt.legend(loc="upper right")
-    if neutron:
-        plt.title('Linear attenuation coefficients: ' + identifier + ' (neutron beam)')
-    else:
-        plt.title('Linear attenuation coefficients: ' + identifier + ' (photon beam)')
+    plt.title('Linear attenuation coefficients: ' + identifier)
     plt.tight_layout()
     plt.savefig(os.path.join('pics', identifier + '_attenuation_coef.png'))
 
 plot_intensity(si, bulks_si, 'Silicon', ylim=[0.95, 1])
-plot_intensity(cdte, bulks_cdte, 'CdTe')
-plot_intensity(cdteneutron, bulks_cdte, 'CdTe (neutron beam)')
+plot_intensity(cdte, bulks_cdte, 'CdTe (photon beam)')
+plot_intensity(cdteneutron, bulks_cdte, 'CdTe (neutron beam)', ylim=[0.95, 1])
 
 coeffs_si = plot_attenuation(si, 'Silicon', ylim=[2e-3, 0.05])
-coeffs_cdte = plot_attenuation(cdte, 'CdTe')
-coeffs_cdteneutron = plot_attenuation(cdteneutron, 'CdTe (neutron beam)')
+coeffs_cdte = plot_attenuation(cdte, 'CdTe (photon beam)')
+plot_attenuation(cdteneutron, 'CdTe (neutron beam)', ylim=[0.015, 0.045])
 
-plot_coefficients(si, coeffs_si, bulks_si, 'Silicon', xcom=xcom_si, ylim=[0.1, 0.65])
-plot_coefficients(cdte, coeffs_cdte, bulks_cdte, 'CdTe', xcom=xcom_cdte)
+plot_coefficients(si, coeffs_si, xcom_si, bulks_si, 'Silicon', ylim=[0.1, 0.65])
+plot_coefficients(cdte, coeffs_cdte, xcom_cdte, bulks_cdte, 'CdTe (photon beam))')
 
 plt.show()
