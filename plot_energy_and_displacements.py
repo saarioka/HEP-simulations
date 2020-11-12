@@ -24,15 +24,16 @@ def plot_displacements(results, bulk, identifier, normalization_factor, colorlis
     for b in range(len(bulk)):
         data = results[results['Thickness'] == bulk[b]]
         data = data.sort_values('Energy')
-        plt.plot(data['Energy'], data['Displacements'] / normalization_factor[b], label=str(bulk[b]) + r'$\mu m$ ' + identifier, color=colorlist[b])
+        plt.scatter(data['Energy'], data['Displacements'] / normalization_factor[b], marker='x',  label=str(bulk[b]) + r'$\mu m$ ' + identifier, color=colorlist[b])
+        plt.plot(data['Energy'], data['Displacements'] / normalization_factor[b], color=colorlist[b])
     plt.xlabel('Beam energy [keV]')
     #plt.ylabel('Displacements per atom')
-    plt.ylabel(r'Displacements/$cm³$')
+    plt.ylabel(r'Displacements  [$1/cm^3$]')
     plt.grid()
     plt.xlim(30, 1300)
     plt.ylim(ylim)
     plt.yscale('log')
-    plt.legend(fontsize='x-small', loc="center right", ncol=3, bbox_to_anchor=(1, 0.46))
+    plt.legend(fontsize='x-small', loc="center right", ncol=3, bbox_to_anchor=(1, 0.47))
     plt.title('Radiation damage')
     plt.tight_layout()
     plt.savefig(os.path.join('pics', 'displacements.png'))
@@ -41,7 +42,8 @@ def plot_energy_depositions(results, bulk, identifier, normalization_factor, col
     for b in range(len(bulk)):
         data = results[results['Thickness'] == bulk[b]]
         data = data.sort_values('Energy')
-        plt.plot(data['Energy'], data['Energydeposit'] / normalization_factor[b], label=str(bulk[b]) + r'$\mu m$ ' + identifier, color=colorlist[b])
+        plt.scatter(data['Energy'], data['Energydeposit'] / normalization_factor[b], marker='x', label=str(bulk[b]) + r'$\mu m$ ' + identifier, color=colorlist[b])
+        plt.plot(data['Energy'], data['Energydeposit'] / normalization_factor[b], color=colorlist[b])
     plt.xlabel('Beam energy [keV]')
     plt.ylabel(r'Energy Density [$keV/cm^3$]')
     plt.grid()
@@ -53,7 +55,7 @@ def plot_energy_depositions(results, bulk, identifier, normalization_factor, col
     plt.tight_layout()
     plt.savefig(os.path.join('pics', 'deposited_energies.png'))
 
-# NOTE: only works if the scored region covers the bulk onlcovers the bulk only
+# NOTE: works if the scored region covers the bulk only
 # N = N_A * n
 # N = N_A * V*rho/M
 # N = N_A * width*height*depth * rho / M
@@ -78,6 +80,12 @@ plot_energy_depositions(cdte, bulks_cdte, r'CdTe ($\gamma$)', pixel_volume_cdte,
 plot_energy_depositions(cdteneutron, bulks_cdte, 'CdTe (n)', pixel_volume_si, colorlist[22:33])
 plt.show()
 
+
+
+'''
+Create individual images of each case
+'''
+
 files = [f for f in os.listdir('.') if os.path.isfile(f) and '.dat' in f and 'doslev' not in f]
 #files = sorted(files)
 
@@ -87,14 +95,13 @@ if not os.path.exists('pics_displacement'):
 if not os.path.exists('pics_energy_deposit'):
     os.makedirs('pics_energy_deposit')
 
-
 cmap = copy.copy(mpl.cm.get_cmap('gnuplot'))
 cmap.set_under('k')
 cmap.set_over('w')
 
 failed = []
-#for f in tqdm(files):
-for f in files[:3]:
+for f in tqdm(files):
+#for f in files[:3]:
     img = np.genfromtxt(f)
     if len(img[:,3]) == 40401:
         img = img[:,2].reshape(201,201).transpose()

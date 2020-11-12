@@ -15,11 +15,11 @@ for f in tqdm(files):
     fig = plt.figure()
     bulk, thickness, energy= f.split('-')
     if bulk == 'cdteneutron':
-        plt.title(f'Particle fluence: {thickness}$\mu$m CdTe bulk, {energy}keV neutron beam')
+        plt.title(fr'Particle fluence: {thickness}$\mu m$ CdTe bulk, {energy}keV neutron beam')
     elif bulk == 'cdte':
-        plt.title(f'Particle fluence: {thickness}$\mu$m CdTe bulk, {energy}keV photon beam')
+        plt.title(fr'Particle fluence: {thickness}$\mu m$ CdTe bulk, {energy}keV photon beam')
     elif bulk == 'si':
-        plt.title(f'Particle fluence: {thickness}$\mu$m silicon bulk, {energy}keV photon beam')
+        plt.title(fr'Particle fluence: {thickness}$\mu m$ silicon bulk, {energy}keV photon beam')
 
     data3 = pd.read_csv(f+'-94_tab.lis', sep='  ', skiprows=2, nrows=fluence_bins, engine='python').to_numpy()
     data3[:,0] = data3[:,0] * 1e6

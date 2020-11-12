@@ -75,9 +75,9 @@ def plot_attenuation(results, identifier, ylim=[0,1]):
         I = list(data['Fluence2'])
         I = [i if i > sys.float_info.epsilon else np.nan for i in I]
         rel_I = np.log(np.divide(I0,I))
-        plt.scatter(data['Thickness'], rel_I, color=colors[e], marker='x')
         fit = linregress(data['Thickness'], rel_I)
-        plt.plot(data['Thickness'], data['Thickness']*fit.slope + fit.intercept, color=colors[e], label=f'{energies[e]:4}keV: CC={fit.rvalue:.3e}, SE={fit.stderr:.1e}')
+        plt.scatter(data['Thickness'], rel_I, color=colors[e], marker='x', label=f'{energies[e]:4}keV: CC={fit.rvalue:.3e}, SE={fit.stderr:.1e}')
+        plt.plot(data['Thickness'], data['Thickness']*fit.slope + fit.intercept, color=colors[e])
         coeffs.append(fit.slope) # [µ]=1/µm
     plt.xlabel(r'Bulk thickness [$\mu m$]')
     plt.ylabel('ln($I_0/I$)')
