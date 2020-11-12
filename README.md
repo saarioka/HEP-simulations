@@ -10,6 +10,7 @@ High Energy Physics simulations using FLUKA and Geant4
     * Easiest is to use Loop-tool in Flair to create runs runs iterating over a parameter and then run them with 0 repetitions. This throws an error, but the _.inp_ file is created.
 1. Run _generate_runs.py_
     * This runs the simulation and combines the results with _usXsuw_-programs (part of FLUKA installation).
+    * After combining results, also removes removes the large binaries (denoted by *_fort*), possibly totaling up to hundreds of gigabytes of data
 1. Run _plot_attenuation.py_
     * Calls method from output_processing.py to convert boundary crossing fluences to tabular form (.csv) and then plots them.
 1. Run _plot_energy_and_displacements.py_
