@@ -18,3 +18,36 @@ High Energy Physics simulations using FLUKA and Geant4
    * Also plots separate heatmaps for every simulation if not disabled. Disabling does not effect the summary plots created from csv-file.
 1. Run _plot_fluence.py_
    * Plots boundary crossing fluences and fluences inside bulk material to separate files.
+
+## Output of FLUKA simulation
+### Relative intensities
+* How much the bulk resists the beam as a function of energy
+![](pics/fluence_Silicon.png)
+![](pics/fluence_CdTe&#32;(photon&#32;beam).png)
+![](pics/fluence_CdTe&#32;(neutron&#32;beam).png)
+
+### Logarithm of reciprocal values of the previous plot + linear fits
+* Attenuation coefficient µ = ln(\<**entering fluence>**/**\<exiting fluence>**)/**\<thickness of bulk>** = slopes of plots below
+![](pics/attenuation_Silicon.png)
+![](pics/attenuation_CdTe&#32;(photon&#32;beam).png)
+![](pics/attenuation_CdTe&#32;(neutron&#32;beam).png)
+
+### Attenuation coefficients
+* Beer-Lambert law
+* Reference values from Nist XCOM database (only available for photons)
+![](pics/attenuationcoef_Silicon.png)
+![](pics/attenuationcoef_CdTe&#32;(photon&#32;beam).png)
+![](pics/attenuationcoef_CdTe&#32;(neutron&#32;beam).png)
+
+## Deposited energy per volume
+* Calculated as sums of USRBIN cards, divided by volume
+![](pics/deposited_energies.png)
+
+## Deposited energy per volume
+* Calculated as sums of USRBIN cards, divided by volume
+![](pics/displacements.png)
+
+## References
+* http://ijrr.com/article-1-1895-en.html
+* NIST XCOM Photon cross sections https://www.physics.nist.gov/PhysRefData/Xcom/html/xcom1.html
+* NIST cross section to attenuation coefficient https://www.physics.nist.gov/PhysRefData/XrayMassCoef/chap2.html
