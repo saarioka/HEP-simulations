@@ -89,10 +89,10 @@ def plot_attenuation(results, identifier, ylim=[0,1]):
     plt.savefig(os.path.join('pics', 'attenuation_' + identifier + '.png'))
     return np.array(coeffs)
 
-def plot_coefficients(results, coeffs, xcom, bulk, identifier, ylim=[0.1, 20]):
-    colors = plt.cm.turbo(np.linspace(0,1,len(energies)))
-    plt.figure(figsize=[7,5.5])
-    plt.plot(xcom[:,0], xcom[:,6], c='tab:blue', label='XCOM data')
+def plot_coefficients(results, coeffs, bulk, identifier, xcom=[], ylim=[0.1, 20]):
+    plt.figure(figsize=[8,5.5])
+    if len(xcom) > 0:
+        plt.plot(xcom[:,0], xcom[:,6], c='tab:blue', label='XCOM data')
     plt.scatter(energies, coeffs * 1e4, s=50, c='tab:red', marker='x', label='Computed from simulation results') # multiply by 1e4 to convert from µm to cm
     plt.xlabel(r'Beam energy [keV]')
     plt.ylabel(r'$\mu$ [$cm^{-1}$]')
@@ -112,9 +112,10 @@ plot_intensity(cdteneutron, bulks_cdte, 'CdTe (neutron beam)', ylim=[0.95, 1])
 
 coeffs_si = plot_attenuation(si, 'Silicon', ylim=[2e-3, 0.05])
 coeffs_cdte = plot_attenuation(cdte, 'CdTe (photon beam)')
-plot_attenuation(cdteneutron, 'CdTe (neutron beam)', ylim=[0.015, 0.045])
+coeffs_cdteneutron = plot_attenuation(cdteneutron, 'CdTe (neutron beam)', ylim=[0.015, 0.045])
 
-plot_coefficients(si, coeffs_si, xcom_si, bulks_si, 'Silicon', ylim=[0.1, 0.65])
-plot_coefficients(cdte, coeffs_cdte, xcom_cdte, bulks_cdte, 'CdTe (photon beam))')
+plot_coefficients(si, coeffs_si, bulks_si, 'Silicon', xcom_si, ylim=[0.1, 0.65])
+plot_coefficients(cdte, coeffs_cdte, bulks_cdte, 'CdTe (photon beam))', xcom_cdte)
+plot_coefficients(cdteneutron, coeffs_cdteneutron, bulks_cdte, 'CdTe (neutron beam))')
 
 plt.show()
