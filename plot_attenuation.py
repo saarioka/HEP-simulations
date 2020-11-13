@@ -115,7 +115,7 @@ coeffs_cdte = plot_attenuation(cdte, 'CdTe (photon beam)')
 coeffs_cdteneutron = plot_attenuation(cdteneutron, 'CdTe (neutron beam)', ylim=[0.015, 0.045])
 
 plot_coefficients(si, coeffs_si, bulks_si, 'Silicon', xcom_si, ylim=[0.1, 0.65])
-plot_coefficients(cdte, coeffs_cdte, bulks_cdte, 'CdTe (photon beam))', xcom_cdte)
-plot_coefficients(cdteneutron, coeffs_cdteneutron, bulks_cdte, 'CdTe (neutron beam))')
+plot_coefficients(cdte, coeffs_cdte, bulks_cdte, 'CdTe (photon beam)', xcom_cdte)
+plot_coefficients(cdteneutron, coeffs_cdteneutron, bulks_cdte, 'CdTe (neutron beam)')
 
 plt.show()
