@@ -27,7 +27,7 @@ High Energy Physics simulations using FLUKA and Geant4
 ![](pics/fluence_CdTe&#32;(neutron&#32;beam).png)
 
 ### Logarithm of reciprocal values of the previous plot + linear fits
-* Attenuation coefficient µ = ln(\<**entering fluence>**/**\<exiting fluence>**)/**\<thickness of bulk>** = slopes of plots below
+* Beer-Lambert: attenuation coefficient µ = ln(\<**entering fluence>**/**\<exiting fluence>**)/**\<thickness of bulk>** = slopes of plots below
 ![](pics/attenuation_Silicon.png)
 ![](pics/attenuation_CdTe&#32;(photon&#32;beam).png)
 ![](pics/attenuation_CdTe&#32;(neutron&#32;beam).png)
@@ -40,11 +40,11 @@ High Energy Physics simulations using FLUKA and Geant4
 ![](pics/attenuationcoef_CdTe&#32;(neutron&#32;beam).png)
 
 ## Deposited energy per volume
-* Calculated as sums of USRBIN cards, divided by volume
+* Calculated as sums of USRBIN card results, divided by volume
 ![](pics/deposited_energies.png)
 
 ## Deposited energy per volume
-* Calculated as sums of USRBIN cards, divided by volume
+* Calculated as sums of USRBIN card results, divided by volume
 ![](pics/displacements.png)
 
 ## References
