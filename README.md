@@ -43,7 +43,7 @@ High Energy Physics simulations using FLUKA and Geant4
 * Calculated as sums of USRBIN card results, divided by volume
 ![](pics/deposited_energies.png)
 
-## Radion damage: atom displacements per volume
+## Radiation damage: atom displacements per volume
 * Calculated as sums of USRBIN card results, divided by volume
 * Todo: displacements per atom could be a better metric, since tellurium has much higher density compared to silicon
 ![](pics/displacements.png)
