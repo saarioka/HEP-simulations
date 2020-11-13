@@ -19,7 +19,7 @@ High Energy Physics simulations using FLUKA and Geant4
 1. Run _plot_fluence.py_
    * Plots boundary crossing fluences and fluences inside bulk material to separate files.
 
-## Output of FLUKA simulation
+## Results of FLUKA simulation
 ### Relative intensities
 * How much the bulk resists the beam as a function of energy
 ![](pics/fluence_Silicon.png)
