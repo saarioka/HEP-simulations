@@ -7,7 +7,7 @@ High Energy Physics simulations using FLUKA and Geant4
        pip install -r requirements.txt
 1. Create _.inp_-files
     * Format: __\<bulk identifier/material>__-__\<index for bulk thickness>__-__\<index for beam energy>__.inp
-    * Easiest is to use Loop-tool in Flair to create runs runs iterating over a parameter and then run them with 0 repetitions. This throws an error, but the _.inp_ file is created.
+    * Easiest is to use Loop-tool in Flair to create runs iterating over a parameter and then run them with 0 repetitions. This throws an error, but the _.inp_ file is created.
 1. Run _generate_runs.py_
     * This runs the simulation and combines the results with _usXsuw_-programs (part of FLUKA installation).
     * After combining results, also removes removes the large binaries (denoted by *_fort*), possibly totaling up to hundreds of gigabytes of data
