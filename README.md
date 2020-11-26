@@ -1,7 +1,9 @@
 # HEP-simulations
 High Energy Physics simulations using FLUKA and Geant4
 
-## Running FLUKA simulations
+## FLUKA
+
+### Running FLUKA simulations
 1. Install dependencies manually or by running
 
        pip install -r requirements.txt
@@ -19,36 +21,44 @@ High Energy Physics simulations using FLUKA and Geant4
 1. Run _plot_fluence.py_
    * Plots boundary crossing fluences and fluences inside bulk material to separate files.
 
-## Results of FLUKA simulation
-### Relative intensities
+### Results of FLUKA simulation
+#### Relative intensities
 * How large portion of the beam goes through the bulk
 ![](pics/fluence_Silicon.png)
 ![](pics/fluence_CdTe&#32;(photon&#32;beam).png)
 ![](pics/fluence_CdTe&#32;(neutron&#32;beam).png)
 
-### Logarithm of reciprocal values of the previous plot + linear fits
+#### Logarithm of reciprocal values of the previous plot + linear fits
 * Beer-Lambert law: attenuation coefficient µ = ln(\<**entering fluence>**/**\<exiting fluence>**)/**\<thickness of bulk>** = slopes of plots below
 ![](pics/attenuation_Silicon.png)
 ![](pics/attenuation_CdTe&#32;(photon&#32;beam).png)
 ![](pics/attenuation_CdTe&#32;(neutron&#32;beam).png)
 
-### Attenuation coefficients
+#### Attenuation coefficients
 * Beer-Lambert law
 * Reference values from Nist XCOM database (only available for photons)
 ![](pics/attenuationcoef_Silicon.png)
 ![](pics/attenuationcoef_CdTe&#32;(photon&#32;beam).png)
 ![](pics/attenuationcoef_CdTe&#32;(neutron&#32;beam).png)
 
-## Deposited energy per volume
+### Deposited energy per volume
 * Calculated as sums of USRBIN card results, divided by volume
 ![](pics/deposited_energies.png)
 
-## Radiation damage: atom displacements per volume
+### Radiation damage: atom displacements per volume
 * Calculated as sums of USRBIN card results, divided by volume
 * Todo: displacements per atom could be a better metric, since tellurium has much higher density compared to silicon
 ![](pics/displacements.png)
 
-## References
+### References
 * http://ijrr.com/article-1-1895-en.html
 * NIST XCOM Photon cross sections https://www.physics.nist.gov/PhysRefData/Xcom/html/xcom1.html
 * NIST cross section to attenuation coefficient https://www.physics.nist.gov/PhysRefData/XrayMassCoef/chap2.html
+
+## GEANT4 / Allpix²
+
+### Running simulations
+Allpix² does not natively support other sensor materials than silicon. Geant4 has a database for several different materials in terms of energy deposition, but not charge carrier propagation. For further info, see https://gitlab.cern.ch/allpix-squared/allpix-squared/-/issues/109
+
+There however exists an [experimental build](https://gitlab.cern.ch/allpix-squared/allpix-squared/-/merge_requests/165) on Gitlab merge requests,
+which offers charge carrier parameters for several substances. It has been merged to a fork of Allpix² [here](https://github.com/saarioka/allpix-squared) in branch _detector_material_. 
