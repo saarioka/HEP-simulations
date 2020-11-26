@@ -47,7 +47,7 @@ High Energy Physics simulations using FLUKA and Geant4
 
 ### Radiation damage: atom displacements per volume
 * Calculated as sums of USRBIN card results, divided by volume
-* Todo: displacements per atom could be a better metric, since tellurium has much higher density compared to silicon
+* Todo: displacements per atom could be a better metric, since cadmium telluride has much higher density compared to silicon
 ![](pics/displacements.png)
 
 ### References
