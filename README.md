@@ -36,7 +36,7 @@ High Energy Physics simulations using FLUKA and Geant4
 
 #### Attenuation coefficients
 * Beer-Lambert law
-* Reference values from Nist XCOM database (only available for photons)
+* Reference values from [Nist XCOM database](https://www.physics.nist.gov/PhysRefData/Xcom/html/xcom1.html) (only available for photons)
 ![](pics/attenuationcoef_Silicon.png)
 ![](pics/attenuationcoef_CdTe&#32;(photon&#32;beam).png)
 ![](pics/attenuationcoef_CdTe&#32;(neutron&#32;beam).png)
