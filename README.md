@@ -61,4 +61,4 @@ High Energy Physics simulations using FLUKA and Geant4
 Allpix² does not natively support other sensor materials than silicon. Geant4 has a database for several different materials in terms of energy deposition, but not charge carrier propagation. For further info, see https://gitlab.cern.ch/allpix-squared/allpix-squared/-/issues/109
 
 There however exists an [experimental build](https://gitlab.cern.ch/allpix-squared/allpix-squared/-/merge_requests/165) on Gitlab merge requests,
-which offers charge carrier parameters for several substances. It has been merged to a fork of Allpix² [here](https://github.com/saarioka/allpix-squared) in branch _detector_material_. 
+which offers charge carrier parameters for several substances. It has been merged to a fork of Allpix² [here](https://github.com/saarioka/allpix-squared/tree/detector_material). 
