@@ -1,0 +1,211 @@
+GLOBAL                                                    1.          OLDFLAIR
+TITLE
+Pixel detector
+* Set the defaults for precision simulations
+DEFAULTS                                                              PRECISIO
+#define BEAM_ENERGY 0.000661
+#define BULK_THICKNESS 0.032
+#define BULK_MATERIAL_SILICON
+#define BULK_MATERIAL_CDTE
+#define BEAM_PARTICLE_PHOTON
+#define BEAM_PARTICLE_NEUTRON
+#if BEAM_PARTICLE_PHOTON
+* Define the beam characteristics
+* Energy needs to be negative to be coded as energy, otherwise it's momentum
+!@what.1=-BEAM_ENERGY
+BEAM       -0.000661                 0.0      -0.0       0.0       1.0PHOTON
+#elif BEAM_PARTICLE_NEUTRON
+!@what.1=-BEAM_ENERGY
+BEAM      =-BEAM_ENERGY                 0.0      -0.0       0.0       1.0NEUTRON
+#endif
+* Define the beam position
+BEAMPOS
+GEOBEGIN                                                              COMBNAME
+    0    0          
+* Black body
+SPH blkbody    0.0 0.0 0.0 100000.0
+* Void sphere
+SPH void       0.0 0.0 0.0 10000.0
+#define METAL_END 3e-05
+RPP metal      -0.0075 0.0075 -0.0050 0.0050 0. $METAL_END
+!@what.1=METAL_END + BULK_THICKNESS
+#define BULK_END 0.03203
+RPP bulk       -0.0075 0.0075 -0.0050 0.0050 $METAL_END $BULK_END
+!@what.1=BULK_END +84E-7
+#define FIELD_INS_END 0.0320384
+!@what.6=FIELD_INS_END
+RPP field_ins  -0.0075 0.0075 -0.005 0.005 $BULK_END 0.0320384
+!@what.1=FIELD_INS_END + 400E-7
+#define IMPLANT_END 0.0320784
+!@what.1=FIELD_INS_END + 433E-7
+#define SURF_PASS_END 0.032081700000000005
+!@what.5=FIELD_INS_END
+!@what.6=SURF_PASS_END
+RPP surf_pass  -0.0058033 0.0058033 -0.0033033 0.0033033 0.0320384
+              0.032081700000000005
+!@what.1=5.704E-4
+#define CORNER_CURVATURE 0.0005704
+* Contact
+!@what.3=FIELD_INS_END
+!@what.6=IMPLANT_END-FIELD_INS_END
+!@what.7=CORNER_CURVATURE
+RCC corner1    -0.0052296 -0.0027296 0.0320384 0.0 0.0 3.999999999999837E-05
+              0.0005704
+!@what.3=FIELD_INS_END
+!@what.6=IMPLANT_END-FIELD_INS_END
+!@what.7=CORNER_CURVATURE
+RCC corner2    -0.0052296 0.0027296 0.0320384 0.0 0.0 3.999999999999837E-05
+              0.0005704
+!@what.3=FIELD_INS_END
+!@what.6=IMPLANT_END-FIELD_INS_END
+!@what.7=CORNER_CURVATURE
+RCC corner4    0.0052296 -0.0027296 0.0320384 0.0 0.0 3.999999999999837E-05
+              0.0005704
+!@what.5=FIELD_INS_END
+!@what.6=IMPLANT_END
+RPP wside      -0.0058 -0.0052296 -0.0027296 0.0027296 0.0320384 0.0320784
+!@what.5=FIELD_INS_END
+!@what.6=IMPLANT_END
+RPP middle     -0.0052296 0.0037 -0.0033 0.0033 0.0320384 0.0320784
+!@what.5=FIELD_INS_END
+!@what.6=IMPLANT_END
+RPP eside1     0.0037 0.0052296 -0.0033 0.0011 0.0320384 0.0320784
+!@what.5=FIELD_INS_END
+!@what.6=IMPLANT_END
+RPP eside2     0.0037 0.0058 -0.0027296 0.0011 0.0320384 0.0320784
+* Bias resistor pad
+!@what.3=FIELD_INS_END
+!@what.6=IMPLANT_END-FIELD_INS_END
+!@what.7=CORNER_CURVATURE
+RCC corner3    0.0052296 0.0027296 0.0320384 0.0 0.0 3.999999999999837E-05
+              0.0005704
+!@what.5=FIELD_INS_END
+!@what.6=IMPLANT_END
+RPP lsmall     0.0041 0.0052296 0.0015 0.0033 0.0320384 0.0320784
+!@what.5=FIELD_INS_END
+!@what.6=IMPLANT_END
+RPP rsmall     0.0041 0.0058 0.0015 0.0027296 0.0320384 0.0320784
+* Passivation opening
+!@what.3=IMPLANT_END
+!@what.6=SURF_PASS_END-IMPLANT_END
+RCC p_open     0.002 0.0 0.0320784 0.0 0.0 3.300000000004688E-06 0.0015
+#if 0
+XYP pad_split  0.03207
+#endif
+*  planes limiting the target
+XYP Zlow       0.0
+!@what.1=FIELD_INS_END
+XYP Zhigh      0.0320384
+XZP Ylow       -0.005
+XZP Yhigh      0.005
+YZP Xlow       -0.0075
+YZP Xhigh      0.0075
+END
+* Black hole
+BLKBODY      5 +blkbody -void
+* Void around
+VOID         5 +void -surf_pass
+               -(+Xhigh +Yhigh +Zhigh  -Xlow -Ylow -Zlow)
+METAL        5 +metal
+* Bulk material
+BULK         5 +bulk
+* Field insulator
+F_INS        5 +field_ins -corner3 -lsmall -rsmall
+PAD          5 +(+corner1|corner2|corner4|wside|middle|eside1|eside2)
+* Silicon pixel
+BIAS_PAD     5 +corner3|lsmall|rsmall
+SUR_PASS     5 +surf_pass
+               -corner1 -corner2 -corner3 -corner4 -wside -middle -eside1 -eside2 -lsmall -rsmall -p_open
+P_OPEN       5 +p_open
+END
+GEOEND
+MATERIAL         48.   112.411      8.65                              CADMIUM
+MATERIAL         52.     127.6      6.24                              TELLURIU
+MATERIAL                            5.85                              CdTe
+MATERIAL                            2.32                              SiO2
+MATERIAL                            3.95                              Al2O3
+MATERIAL                             5.4                              TiN
+COMPOUND         1.0   CADMIUM       1.0  TELLURIU                    CdTe
+COMPOUND         1.0   SILICON       2.0    OXYGEN                    SiO2
+COMPOUND         2.0  ALUMINUM       3.0    OXYGEN                    Al2O3
+COMPOUND         1.0  TITANIUM       1.0  NITROGEN                    TiN
+ASSIGNMA    BLCKHOLE   BLKBODY
+ASSIGNMA      VACUUM      VOID
+ASSIGNMA    ALUMINUM     METAL
+#if BULK_MATERIAL_SILICON
+ASSIGNMA     SILICON      BULK
+#elif BULK_MATERIAL_CDTE
+ASSIGNMA        CdTe      BULK
+#endif
+ASSIGNMA       Al2O3     F_INS
+ASSIGNMA    ALUMINUM       PAD
+ASSIGNMA    ALUMINUM  BIAS_PAD
+ASSIGNMA       Al2O3  SUR_PASS
+ASSIGNMA      VACUUM    P_OPEN
+* Set the random number seed
+RANDOMIZ         1.0
+* Energy deposition density
+!@what.6=SURF_PASS_END
+USRBIN           10.    ENERGY      -97.     0.005    0.0075 0.0320817EneDep
+USRBIN        -0.005   -0.0075       0.0      200.      200.      200. &
+!@what.6=SURF_PASS_END
+USRBIN           10.    ENERGY       98.     0.005    0.0075 0.0320817EneDepA
+USRBIN        -0.005   -0.0075       0.0      200.      200.      200. &
+* Displacements per atom
+!@what.6=SURF_PASS_END
+USRBIN           10.   DPA-SCO      -96.     0.005    0.0075 0.0320817Displac
+USRBIN        -0.005   -0.0075       0.0      200.      200.      200. &
+* Energy/unit mass (GeV/g)
+!@what.6=SURF_PASS_END
+USRBIN           10.      DOSE      -95.     0.005    0.0075 0.0320817EneDepMass
+USRBIN        -0.005   -0.0075       0.0      200.      200.      200. &
+#define FLUENCE_BINS 150
+#if BEAM_PARTICLE_PHOTON
+* Photon fluence from metal to bulk
+!@what.9=FLUENCE_BINS
+USRBDX           99.    PHOTON      -21.     METAL      BULK   0.00015bcFluence1
+USRBDX        1.4E-3      1E-5       150                            1. &
+!@what.9=FLUENCE_BINS
+USRBDX           99.    PHOTON       24.     METAL      BULK   0.00015bcFluence3
+USRBDX        1.4E-3      1E-5       150                            1. &
+* Photon fluence from bulk to surface passivation layer
+!@what.9=FLUENCE_BINS
+USRBDX           99.    PHOTON      -22.      BULK     F_INS   0.00015bcFluence2
+USRBDX        1.4E-3      1E-5       150                            1. &
+!@what.9=FLUENCE_BINS
+USRBDX           99.    PHOTON       25.      BULK     F_INS   0.00015bcFluence4
+USRBDX        1.4E-3      1E-5       150                            1. &
+* Photon fluence in bulk
+!@what.5=100E-4*150E-4*BULK_THICKNESS
+!@what.6=FLUENCE_BINS
+USRTRACK         -1.    PHOTON      -94.      BULK   4.8E-06       150Fluence
+USRTRACK      1.4E-3      1E-5                                         &
+#elif BEAM_PARTICLE_NEUTRON
+!@what.9=FLUENCE_BINS
+USRBDX           99.   NEUTRON      -21.     METAL      BULK   0.00015bcFluence1
+USRBDX        1.4E-3      1E-5=FLUENCE_BINS                            1. &
+!@what.9=FLUENCE_BINS
+USRBDX           99.   NEUTRON       24.     METAL      BULK   0.00015bcFluence3
+USRBDX        1.4E-3      1E-5=FLUENCE_BINS                            1. &
+!@what.9=FLUENCE_BINS
+USRBDX           99.   NEUTRON      -22.      BULK     F_INS   0.00015bcFluence2
+USRBDX        1.4E-3      1E-5=FLUENCE_BINS                            1. &
+!@what.9=FLUENCE_BINS
+USRBDX           99.   NEUTRON       25.      BULK     F_INS   0.00015bcFluence4
+USRBDX        1.4E-3      1E-5=FLUENCE_BINS                            1. &
+!@what.5=100E-4*150E-4*BULK_THICKNESS
+!@what.6=FLUENCE_BINS
+USRTRACK         -1.   NEUTRON      -94.      BULK=100E-4*150E-4*BULK_THICKNESS=FLUENCE_BINSFluence
+USRTRACK      1.4E-3      1E-5                                         &
+#endif
+* Collision fluence in bulk
+!@what.5=100E-4*150E-4*BULK_THICKNESS
+!@what.6=FLUENCE_BINS
+USRCOLL               ALL-PART      -23.      BULK   4.8E-06       150colFluence
+USRCOLL       1.4E-3      1E-5                                         &
+!@what.6=100E-4*150E-4*BULK_THICKNESS
+*RESNUCLE          3.      -24.       48.                BULK   4.8E-06Resnuclei
+*DETECT            0.                  1.                  1.      BULKDetect
+* Set the number of primary histories to be simulated in the run
+START            1E5
+STOP
