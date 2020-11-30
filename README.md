@@ -24,31 +24,31 @@ High Energy Physics simulations using FLUKA and Geant4
 ### Results of FLUKA simulation
 #### Relative intensities
 * How large portion of the beam goes through the bulk
-![](pics/fluence_Silicon.png)
-![](pics/fluence_CdTe&#32;(photon&#32;beam).png)
-![](pics/fluence_CdTe&#32;(neutron&#32;beam).png)
+![](fluka/pics/fluence_Silicon.png)
+![](fluka/pics/fluence_CdTe&#32;(photon&#32;beam).png)
+![](fluka/pics/fluence_CdTe&#32;(neutron&#32;beam).png)
 
 #### Logarithm of reciprocal values of the previous plot + linear fits
 * Beer-Lambert law: attenuation coefficient µ = ln(\<**entering fluence>**/**\<exiting fluence>**)/**\<thickness of bulk>** = slopes of plots below
-![](pics/attenuation_Silicon.png)
-![](pics/attenuation_CdTe&#32;(photon&#32;beam).png)
-![](pics/attenuation_CdTe&#32;(neutron&#32;beam).png)
+![](fluka/pics/attenuation_Silicon.png)
+![](fluka/pics/attenuation_CdTe&#32;(photon&#32;beam).png)
+![](fluka/pics/attenuation_CdTe&#32;(neutron&#32;beam).png)
 
 #### Attenuation coefficients
 * Beer-Lambert law
 * Reference values from [Nist XCOM database](https://www.physics.nist.gov/PhysRefData/Xcom/html/xcom1.html) (only available for photons)
-![](pics/attenuationcoef_Silicon.png)
-![](pics/attenuationcoef_CdTe&#32;(photon&#32;beam).png)
-![](pics/attenuationcoef_CdTe&#32;(neutron&#32;beam).png)
+![](fluka/pics/attenuationcoef_Silicon.png)
+![](fluka/pics/attenuationcoef_CdTe&#32;(photon&#32;beam).png)
+![](fluka/pics/attenuationcoef_CdTe&#32;(neutron&#32;beam).png)
 
 ### Deposited energy per volume
 * Calculated as sums of USRBIN card results, divided by volume
-![](pics/deposited_energies.png)
+![](fluka/pics/deposited_energies.png)
 
 ### Radiation damage: atom displacements per volume
 * Calculated as sums of USRBIN card results, divided by volume
 * Todo: displacements per atom could be a better metric, since cadmium telluride has much higher density compared to silicon
-![](pics/displacements.png)
+![](fluka/pics/displacements.png)
 
 ### References
 * http://ijrr.com/article-1-1895-en.html
